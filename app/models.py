@@ -11,7 +11,7 @@ class Brand(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text())
     notes = db.Column(db.Text())
-    manufacturer_id = db.Column(id.Integer, db.ForeignKey('manufacturer.id'))
+    manufacturer_id = db.Column(db.Integer, db.ForeignKey('manufacturer.id'))
     
     def __repr__(self):
         return self.name
