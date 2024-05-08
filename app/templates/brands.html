@@ -1,4 +1,4 @@
 {% for brand in brands %}
-{{brand.name}} - {{brand.notes|safe}} 
+{{brand.name}} - (by {{ brand.manufacturer.name}}) - {{brand.notes|safe}} 
 <br>
 {% endfor %}

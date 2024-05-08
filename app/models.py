@@ -1,19 +1,29 @@
 from app.routes import db
 
-class Manufacturer(db.Model):
-    __tablename__ = "Manufacturer"
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Text())
-    brand = db.relationship("Brand", backref="manufacturer")
 
 class Brand(db.Model):
     __tablename__ = "Brand"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text())
+    alias = db.Column(db.Text())
+    motto = db.Column(db.Text())
     notes = db.Column(db.Text())
-    manufacturer_id = db.Column(db.Integer, db.ForeignKey('manufacturer.id'))
-    
+    manufacturer_id = db.Column(db.Integer, db.ForeignKey('Manufacturer.id'))
+    notes = db.Column(db.Text())
+
+    manufacturer = db.relationship("Manufacturer", back_populates="brands")
+
     def __repr__(self):
         return self.name
 
 
+class Manufacturer(db.Model):
+    __tablename__ = "Manufacturer"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text())
+    
+    brands = db.relationship("Brand", back_populates="manufacturer")
+
+
+    def __repr__(self):
+        return self.name
