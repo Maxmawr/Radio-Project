@@ -7,9 +7,7 @@ class Brand(db.Model):
     name = db.Column(db.Text())
     alias = db.Column(db.Text())
     motto = db.Column(db.Text())
-    notes = db.Column(db.Text())
     manufacturer_id = db.Column(db.Integer, db.ForeignKey('Manufacturer.id'))
-    notes = db.Column(db.Text())
 
     manufacturer = db.relationship("Manufacturer", back_populates="brands")
 
