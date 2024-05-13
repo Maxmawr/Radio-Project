@@ -35,7 +35,7 @@ def manufacturers():
 
 @app.route("/all_parts")
 def all_parts():
-    all_parts = models.Parts.query.all()
+    all_parts = models.Part.query.all()
     return render_template("all_parts.html", all_parts = all_parts)
 
 if __name__ == "__main__":

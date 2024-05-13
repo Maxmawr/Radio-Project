@@ -1,5 +1,8 @@
 from app.routes import db
 
+PizzaTopping = db.Table('PizzaTopping',
+    db.Column('pid', db.Integer, db.ForeignKey('Pizza.id')),
+    db.Column('tid', db.Integer, db.ForeignKey('Topping.id')))
 
 class Brand(db.Model):
     __tablename__ = "Brand"
@@ -10,7 +13,7 @@ class Brand(db.Model):
     manufacturer_id = db.Column(db.Integer, db.ForeignKey('Manufacturer.id'))
 
     manufacturer = db.relationship("Manufacturer", back_populates="brands")
-    parts = db.relationship("Parts", back_populates="brands")
+    # parts = db.relationship("Part", backref="brands")
 
 
     def __repr__(self):
@@ -24,18 +27,6 @@ class Manufacturer(db.Model):
     
     brands = db.relationship("Brand", back_populates="manufacturer")
 
-class Parts(db.Model):
-    __tablename__ = "Parts"
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Text())
-    brand_id = db.Column(db.Integer, db.ForeignKey('brand.id'))
-    type_id = db.Column(db.Integer, db.ForeignKey('type.id'))
-    size = db.Column(db.Text())
-    image = db.Column(db.Text())
-
-    brands = db.relationship("Brand", back_populates="parts")
-    type = db.relationship("Type", back_populates="parts")
-
     def __repr__(self):
         return self.name
 
@@ -44,7 +35,24 @@ class Type(db.Model):
     name = db.Column(db.Text())
     description = db.Column(db.Text())
 
-    parts = db.relationship("Parts", back_populates="type")
+    # parts = db.relationship("Part", backref="type")
 
     def __repr__(self):
         return self.name
+
+class Part(db.Model):
+    __tablename__ = "Part"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text())
+    brand_id = db.Column(db.Integer, db.ForeignKey('Brand.id'))
+    type_id = db.Column(db.Integer, db.ForeignKey('Type.id'))
+    size = db.Column(db.Text())
+    image = db.Column(db.Text())
+
+    brands = db.relationship("Brand", backref="parts")
+    type = db.relationship("Type", backref="tparts")
+
+    def __repr__(self):
+        return self.name
+
+
