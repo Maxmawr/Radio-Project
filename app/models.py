@@ -31,11 +31,10 @@ class Manufacturer(db.Model):
         return self.name
 
 class Type(db.Model):
+    __tablename__ = "Type"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text())
     description = db.Column(db.Text())
-
-    # parts = db.relationship("Part", backref="type")
 
     def __repr__(self):
         return self.name
