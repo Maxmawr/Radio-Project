@@ -1,5 +1,7 @@
-
-{% for brand in brands %}
-{{brand.name}} - (by {{ brand.manufacturer.name}}) - {{brand.notes|safe}} 
-<br>
-{% endfor %}
+{% extends "layout.html" %}
+{% block content %}
+    {% for brand in brands %}
+    {{brand.name}} - (by {{brand.manufacturer.name}})
+    <br>
+    {% endfor %}
+{% endblock %}

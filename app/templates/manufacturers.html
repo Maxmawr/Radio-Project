@@ -1,4 +1,7 @@
-{% for manufacturer in manufacturers %}
-{{manufacturer.name}} - {{manufacturer.notes|safe}} 
-<br>
-{% endfor %}
+{% extends "layout.html" %}
+{% block content %}
+    {% for manufacturer in manufacturers %}
+    {{manufacturer.name}}
+    <br>
+    {% endfor %}
+{% endblock %}

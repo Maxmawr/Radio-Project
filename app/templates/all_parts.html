@@ -1,5 +1,7 @@
-{%extends "layout.html"%}
-{%block content%}
+{% extends "layout.html" %}
+{% block content %}
     <h1>All Parts Here</h1>
-    {{all_parts}}
-{%endblock%}
+    {% for part in all_parts %}
+    {{part.name}} - {{part.size}} - Brand: {{part.brands}} -  {{part.type}}<br>
+    {% endfor %}
+{% endblock %}
