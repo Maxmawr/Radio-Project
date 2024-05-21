@@ -1,8 +1,8 @@
 from app.routes import db
 
-PizzaTopping = db.Table('PizzaTopping',
-    db.Column('pid', db.Integer, db.ForeignKey('Pizza.id')),
-    db.Column('tid', db.Integer, db.ForeignKey('Topping.id')))
+PartBrands = db.Table('PartBrands',
+    db.Column('part_id', db.Integer, db.ForeignKey('Part.id')),
+    db.Column('brand_id', db.Integer, db.ForeignKey('Brand.id')))
 
 class Brand(db.Model):
     __tablename__ = "Brand"
