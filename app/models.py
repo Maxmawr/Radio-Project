@@ -43,12 +43,11 @@ class Part(db.Model):
     __tablename__ = "Part"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text())
-    brand_id = db.Column(db.Integer, db.ForeignKey('Brand.id'))
     type_id = db.Column(db.Integer, db.ForeignKey('Type.id'))
     size = db.Column(db.Text())
     image = db.Column(db.Text())
 
-    brands = db.relationship("Brand", backref="parts")
+    brand = db.relationship("Brand", secondary="PartBrands", backref="parts")
     type = db.relationship("Type", backref="tparts")
 
     def __repr__(self):
