@@ -42,5 +42,18 @@ def all_parts():
     return render_template("all_parts.html", all_parts=all_parts)
 
 
+@app.route("/search", methods=['GET', 'POST'])
+def search():
+    form = Filter_Brands()
+    parts = models.Part.query.all()
+    form.partbrand.choices = [(part.id, part.name) for part in parts]
+    if request.method=='POST':
+        if form.validate_on_submit():
+            # print("YAY! - got {}, of type {}".format(form.moviename.data, type(form.moviename.data)))
+            # print("Redirecting to: {}".format(url_for('details', ref=form.moviename.data)))
+            return redirect(url_for('details', ref=form.partbrand.data))
+    return render_template("search.html", form=form)
+
+
 if __name__ == "__main__":
     app.run(debug=True)
