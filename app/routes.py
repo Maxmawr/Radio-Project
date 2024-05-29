@@ -1,14 +1,18 @@
 from app import app
-from flask import render_template
+from flask import render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 db = SQLAlchemy()
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, "radio.db")
+app.secret_key = 'correcthorsebatterystaple'
+WTF_CSRF_ENABLED = True
+WTF_CSRF_SECRET_KEY = 'sup3r_secr3t_passw3rd'
 db.init_app(app)
 
 import app.models as models
+from app.forms import Filter_Brands
 
 # import sqlite3
 
@@ -51,8 +55,14 @@ def search():
         if form.validate_on_submit():
             # print("YAY! - got {}, of type {}".format(form.moviename.data, type(form.moviename.data)))
             # print("Redirecting to: {}".format(url_for('details', ref=form.moviename.data)))
-            return redirect(url_for('details', ref=form.partbrand.data))
+            return redirect(url_for('part', id=form.partbrand.data))
     return render_template("search.html", form=form)
+
+
+@app.route("/part/<int:id>")
+def part(id):
+    part = models.Part.query.filter_by(id=id).first_or_404()
+    return render_template("part.html", part=part)
 
 
 if __name__ == "__main__":
