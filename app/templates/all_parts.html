@@ -2,7 +2,7 @@
 {% block content %}
     <h1>All Parts Here</h1>
     {% for part in all_parts %}
-    {{part.name}} - {{part.size}} - Known Brands: {{part.brand}} -  {{part.type}} - {{part.tag}}<br>
+    <a href = "/part/{{part.id}}">{{part.name}}</a> - {{part.size}} - Known Brands: {{part.brand}} -  {{part.type}} - {{part.tag}}<br>
     {% if part.image %}
     <img class="thumbnail" src="/static/images/{{part.image}}"/> <br>
     {% endif %}
