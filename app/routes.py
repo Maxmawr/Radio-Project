@@ -48,15 +48,15 @@ def all_parts():
 
 @app.route("/search", methods=['GET', 'POST'])
 def search():
+    results = []
     form = Filter_Brands()
-    parts = models.Part.query.all()
-    form.partbrand.choices = [(part.id, part.name) for part in parts]
+    brands = models.Brand.query.all()
+    form.partbrand.choices = [(b.id, b.name) for b in brands]
     if request.method=='POST':
         if form.validate_on_submit():
-            # print("YAY! - got {}, of type {}".format(form.moviename.data, type(form.moviename.data)))
-            # print("Redirecting to: {}".format(url_for('details', ref=form.moviename.data)))
-            return redirect(url_for('part', id=form.partbrand.data))
-    return render_template("search.html", form=form)
+            selected_brand_id = form.partbrand.data
+            results = models.Part.query.filter(models.Part.brand.any(id=selected_brand_id)).all()
+    return render_template("search.html", form=form, results=results)
 
 
 @app.route("/part/<int:id>")

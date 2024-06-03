@@ -7,4 +7,10 @@
   <input type="submit" value="Choose this brand">
 </form>    
 
+{% for part in results %}
+  <a href = "/part/{{part.id}}">{{part.name}}</a> - {{part.size}} - Known Brands: {{part.brand}} -  {{part.type}} - {{part.tag}}<br>
+  {% if part.image %}
+    <img class="thumbnail" src="/static/images/{{part.image}}"/> <br>
+  {% endif %}
+{% endfor %}
 {% endblock %}
