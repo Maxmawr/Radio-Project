@@ -1,4 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
-    {{part}}
+    <a>{{part.name}}</a> - {{part.size}} - Known Brands: {{part.brand}} -  {{part.type}} - {{part.tag}}<br></a>
+    {% if part.image %}
+    <img class="thumbnail" src="/static/images/{{part.image}}"/> <br>
+  {% endif %}
 {% endblock %}
