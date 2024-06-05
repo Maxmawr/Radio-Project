@@ -12,7 +12,7 @@ WTF_CSRF_SECRET_KEY = 'sup3r_secr3t_passw3rd'
 db.init_app(app)
 
 import app.models as models
-from app.forms import Filter_Brands
+from app.forms import Filter_Brands, Add_Part
 
 # import sqlite3
 
@@ -63,6 +63,23 @@ def search():
 def part(id):
     part = models.Part.query.filter_by(id=id).first_or_404()
     return render_template("part.html", part=part)
+
+
+@app.route('/add_part', methods=['GET', 'POST'])
+def add_part():
+  form = Add_Part()
+  if request.method=='GET':
+    return render_template('add_part.html', form=form, title="Add A Part")
+  else:
+    if form.validate_on_submit():
+      new_part = models.Part()
+      new_part.name = form.name.data
+      db.session.add(new_part)
+      db.session.commit()
+      return redirect(url_for('details', ref=new_part.id))
+    else:
+      # note the terrible logic, this has already been called once in this function - could the logic be tidied up?   
+      return render_template('add_part.html', form=form, title="Add A Part")
 
 
 if __name__ == "__main__":
