@@ -11,5 +11,5 @@ class Filter_Brands(FlaskForm):
 
 class Add_Part(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
-    brand = SelectField('brand', validators=[DataRequired()])
+    brand = SelectField('brand', validators=[DataRequired()], coerce=int)
     tags = TextAreaField('tags')
