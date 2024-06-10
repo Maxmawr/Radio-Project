@@ -18,6 +18,7 @@ class Brand(db.Model):
     manufacturer_id = db.Column(db.Integer, db.ForeignKey('Manufacturer.id'))
 
     manufacturer = db.relationship("Manufacturer", back_populates="brands")
+    parts = db.relationship("Part", secondary="PartBrands", back_populates="brands")
 
     def __repr__(self):
         return self.name
@@ -52,7 +53,7 @@ class Part(db.Model):
     size = db.Column(db.Text())
     image = db.Column(db.Text())
 
-    brand = db.relationship("Brand", secondary="PartBrands", backref="parts")
+    brands = db.relationship("Brand", secondary="PartBrands", back_populates="parts")
     tag = db.relationship("Tag", secondary="PartTag", backref="parts")
     type = db.relationship("Type", backref="tparts")
 

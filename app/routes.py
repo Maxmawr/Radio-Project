@@ -55,7 +55,7 @@ def search():
     if request.method=='POST':
         if form.validate_on_submit():
             selected_brand_id = form.partbrand.data
-            results = models.Part.query.filter(models.Part.brand.any(id=selected_brand_id)).all()
+            results = models.Part.query.filter(models.Part.brands.any(id=selected_brand_id)).all()
     return render_template("search.html", form=form, results=results)
 
 
@@ -67,19 +67,23 @@ def part(id):
 
 @app.route('/add_part', methods=['GET', 'POST'])
 def add_part():
-  form = Add_Part()
-  if request.method=='GET':
-    return render_template('add_part.html', form=form, title="Add A Part")
-  else:
-    if form.validate_on_submit():
-      new_part = models.Part()
-      new_part.name = form.name.data
-      db.session.add(new_part)
-      db.session.commit()
-      return redirect(url_for('details', ref=new_part.id))
+    form = Add_Part()
+    brands = models.Brand.query.all()
+    form.brand.choices = [(b.id, b.name) for b in brands]
+    if request.method=='GET':
+        return render_template('add_part.html', form=form, title="Add A Part")
     else:
-      # note the terrible logic, this has already been called once in this function - could the logic be tidied up?   
-      return render_template('add_part.html', form=form, title="Add A Part")
+        if form.validate_on_submit():
+            new_part = models.Part()
+            new_part.name = form.name.data
+            new_part.brands = form.brand.data
+
+            db.session.add(new_part)
+            db.session.commit()
+            return redirect(url_for('part', id=new_part.id))
+        else:
+        # note the terrible logic, this has already been called once in this function - could the logic be tidied up?   
+            return render_template('add_part.html', form=form, title="Add A Part")
 
 
 if __name__ == "__main__":
