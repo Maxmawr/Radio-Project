@@ -74,9 +74,11 @@ def add_part():
         return render_template('add_part.html', form=form, title="Add A Part")
     else:
         if form.validate_on_submit():
+            selected_brand_id = form.brand.data
+            print(type(selected_brand_id))
             new_part = models.Part()
             new_part.name = form.name.data
-            new_part.brands = form.brand.data
+            new_part.brands.append(selected_brand_id)
 
             db.session.add(new_part)
             db.session.commit()
