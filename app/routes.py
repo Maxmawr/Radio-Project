@@ -75,10 +75,13 @@ def add_part():
     else:
         if form.validate_on_submit():
             selected_brand_id = form.brand.data
-            print(type(selected_brand_id))
+            # Might cause crashes, check for valid data
+            brand = models.Brand.query.filter_by(id=selected_brand_id).first()
+            # print(type(selected_brand_id))
             new_part = models.Part()
             new_part.name = form.name.data
-            new_part.brands.append(selected_brand_id)
+            
+            new_part.brands.append(brand)
 
             db.session.add(new_part)
             db.session.commit()
