@@ -69,7 +69,10 @@ def part(id):
 def add_part():
     form = Add_Part()
     brands = models.Brand.query.all()
+    tags = models.Tag.query.all()
     form.brand.choices = [(b.id, b.name) for b in brands]
+    form.tags.choices = [(t.id, t.name) for t in tags]
+
     if request.method=='GET':
         return render_template('add_part.html', form=form, title="Add A Part")
     else:
@@ -78,11 +81,14 @@ def add_part():
             # Might cause crashes, check for valid data
             brand = models.Brand.query.filter_by(id=selected_brand_id).first()
             # print(type(selected_brand_id))
+            tag = models.Brand.query.filter_by(id=form.tags.data).first()
+
             new_part = models.Part()
             new_part.name = form.name.data
-            
+
             new_part.brands.append(brand)
 
+            new_part.tags.append(tag)
             db.session.add(new_part)
             db.session.commit()
             return redirect(url_for('part', id=new_part.id))
