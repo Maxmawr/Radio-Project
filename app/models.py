@@ -54,7 +54,7 @@ class Part(db.Model):
     image = db.Column(db.Text())
 
     brands = db.relationship("Brand", secondary="PartBrands", back_populates="parts")
-    tag = db.relationship("Tag", secondary="PartTag", backref="parts")
+    tags = db.relationship("Tag", secondary="PartTag", back_populates="parts")
     type = db.relationship("Type", backref="tparts")
 
     def __repr__(self):
@@ -65,6 +65,8 @@ class Tag(db.Model):
     __tablename__ = "Tag"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text())
+
+    parts = db.relationship("Part", secondary="PartTag", back_populates="tags")
 
     def __repr__(self):
         return self.name
