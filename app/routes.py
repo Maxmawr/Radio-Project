@@ -86,6 +86,7 @@ def add_part():
             new_part = models.Part()
             new_part.name = form.name.data
 
+            #Adding tags
             taglist = form.tags.data.split(",")
             for t in taglist:
                 tag = models.Tag.query.filter_by(name=t).first()
@@ -94,7 +95,7 @@ def add_part():
                     new_tag.name = t
                     db.session.add(new_tag)
                     db.session.commit()
-                tag = models.Tag.query.filter_by(name=t).first()
+                    tag = models.Tag.query.filter_by(name=t).first()
                 new_part.tags.append(tag)
 
             new_part.brands.append(brand)
