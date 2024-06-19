@@ -12,7 +12,7 @@ WTF_CSRF_SECRET_KEY = 'sup3r_secr3t_passw3rd'
 db.init_app(app)
 
 import app.models as models
-from app.forms import Filter_Brands, Add_Part
+from app.forms import Search, Add_Part
 
 # import sqlite3
 
@@ -49,13 +49,16 @@ def all_parts():
 @app.route("/search", methods=['GET', 'POST'])
 def search():
     results = []
-    form = Filter_Brands()
+    form = Search()
     brands = models.Brand.query.all()
     form.partbrand.choices = [(b.id, b.name) for b in brands]
+
     if request.method=='POST':
         if form.validate_on_submit():
+            print(form.search.data.lower())
             selected_brand_id = form.partbrand.data
-            results = models.Part.query.filter(models.Part.brands.any(id=selected_brand_id)).all()
+            results = models.Part.query.filter_by(name=form.search.data).all()
+            # results = models.Part.query.filter(models.Part.brands.any(id=selected_brand_id)).all()
     return render_template("search.html", form=form, results=results)
 
 
@@ -85,7 +88,6 @@ def add_part():
 
             taglist = form.tags.data.split(",")
             for t in taglist:
-                print(1)
                 tag = models.Tag.query.filter_by(name=t).first()
                 if tag == None:
                     new_tag = models.Tag()

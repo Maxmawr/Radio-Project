@@ -4,10 +4,9 @@ from wtforms.validators import DataRequired, Optional, ValidationError
 import app.models
 from datetime import datetime
 
-
-class Filter_Brands(FlaskForm):
+class Search(FlaskForm):
     partbrand = SelectField('partbrand', validators=[DataRequired()], coerce=int)
-
+    search = TextAreaField('search')
 
 class Add_Part(FlaskForm):
     name = StringField('name', validators=[DataRequired()])

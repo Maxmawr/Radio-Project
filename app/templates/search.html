@@ -3,8 +3,9 @@
 
 <form method="POST" enctype="multipart/form-data">
   {{ form.csrf_token }}
+  {{ form.search }}<br>
   {{ form.partbrand }}<br>{{ form.errors }}
-  <input type="submit" value="Choose this brand">
+  <input type="submit" value="Search">
 </form>    
 
 {% for part in results %}
