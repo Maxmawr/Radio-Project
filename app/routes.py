@@ -1,6 +1,7 @@
 from app import app
 from flask import render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
 import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -55,9 +56,10 @@ def search():
 
     if request.method=='POST':
         if form.validate_on_submit():
-            print(form.search.data.lower())
+            print(func.lower(form.search.data))
             selected_brand_id = form.partbrand.data
-            results = models.Part.query.filter_by(name=form.search.data).all()
+            search_term = '%' + form.search.data.lower() + '%'
+            results = models.Part.query.filter(models.Part.name.ilike(search_term)).all()
             # results = models.Part.query.filter(models.Part.brands.any(id=selected_brand_id)).all()
     return render_template("search.html", form=form, results=results)
 
