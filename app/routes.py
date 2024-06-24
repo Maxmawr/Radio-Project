@@ -57,7 +57,7 @@ def search():
     if request.method=='POST':
         if form.validate_on_submit():
             print(func.lower(form.search.data))
-            selected_brand_id = form.partbrand.data
+            # selected_brand_id = form.partbrand.data
             search_term = '%' + form.search.data.lower() + '%'
             results = models.Part.query.filter(models.Part.name.ilike(search_term)).all()
             # results = models.Part.query.filter(models.Part.brands.any(id=selected_brand_id)).all()
