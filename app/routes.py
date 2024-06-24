@@ -2,7 +2,13 @@ from app import app
 from flask import render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
+from werkzeug.utils import secure_filename
 import os
+
+UPLOAD_FOLDER = 'app\static\images'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 db = SQLAlchemy()
@@ -73,8 +79,12 @@ def part(id):
 @app.route('/add_part', methods=['GET', 'POST'])
 def add_part():
     form = Add_Part()
+
     brands = models.Brand.query.all()
     form.brand.choices = [(b.id, b.name) for b in brands]
+
+    types = models.Type.query.all()
+    form.type.choices = [(t.id, t.name) for t in types]
 
     if request.method=='GET':
         return render_template('add_part.html', form=form, title="Add A Part")
@@ -86,7 +96,17 @@ def add_part():
             # print(type(selected_brand_id))
 
             new_part = models.Part()
+
+            #assigning new part's name
             new_part.name = form.name.data
+
+        # Handle image upload
+        if 'image' in request.files:
+            image_file = request.files['image']
+            if image_file.filename != '':
+                filename = secure_filename(image_file.filename)
+                image_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                new_part.image = filename  # Save filename to the database
 
             #Adding tags
             taglist = form.tags.data.split(",")
@@ -100,7 +120,10 @@ def add_part():
                     tag = models.Tag.query.filter_by(name=t).first()
                 new_part.tags.append(tag)
 
+            # Assigning new part's brand
             new_part.brands.append(brand)
+
+            # new_part.type = form.type.data
 
             db.session.add(new_part)
             db.session.commit()
