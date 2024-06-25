@@ -55,7 +55,7 @@ class Part(db.Model):
 
     brands = db.relationship("Brand", secondary="PartBrands", back_populates="parts")
     tags = db.relationship("Tag", secondary="PartTag", back_populates="parts")
-    type = db.relationship("Type", backref="tparts")
+    type = db.relationship("Type", backref="parts")
 
     def __repr__(self):
         return self.name
