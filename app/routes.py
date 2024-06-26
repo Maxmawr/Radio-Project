@@ -74,6 +74,7 @@ def search():
 def part(id):
     part = models.Part.query.filter_by(id=id).first_or_404()
     images = models.Image.query.filter_by(part_id=part.id).all()
+    print(images)
     return render_template("part.html", part=part, images=images)
 
 
