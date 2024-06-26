@@ -55,7 +55,8 @@ def all_parts():
 
 @app.route("/search", methods=['GET', 'POST'])
 def search():
-    results = []
+    term_results = []
+    brand_results = []
     form = Search()
     brands = models.Brand.query.all()
     form.partbrand.choices = [(b.id, b.name) for b in brands]
@@ -63,18 +64,16 @@ def search():
     if request.method=='POST':
         if form.validate_on_submit():
             print(func.lower(form.search.data))
-            # selected_brand_id = form.partbrand.data
             search_term = '%' + form.search.data.lower() + '%'
-            results = models.Part.query.filter(models.Part.name.ilike(search_term)).all()
-            # results = models.Part.query.filter(models.Part.brands.any(id=selected_brand_id)).all()
-    return render_template("search.html", form=form, results=results)
+            term_results = models.Part.query.filter(models.Part.name.ilike(search_term)).all()
+            brand_results = models.Part.query.filter(models.Part.brands.any(id=form.partbrand.data)).all()
+    return render_template("search.html", form=form, term_results=term_results, brand_results=brand_results)
 
 
 @app.route("/part/<int:id>")
 def part(id):
     part = models.Part.query.filter_by(id=id).first_or_404()
     images = models.Image.query.filter_by(part_id=part.id).all()
-    print(images)
     return render_template("part.html", part=part, images=images)
 
 
