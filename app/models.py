@@ -57,6 +57,8 @@ class Part(db.Model):
     tags = db.relationship("Tag", secondary="PartTag", back_populates="parts")
     type = db.relationship("Type", backref="parts")
 
+    image_id = db.relationship("Image", backref="part")
+
     def __repr__(self):
         return self.name
 
@@ -67,6 +69,16 @@ class Tag(db.Model):
     name = db.Column(db.Text())
 
     parts = db.relationship("Part", secondary="PartTag", back_populates="tags")
+
+    def __repr__(self):
+        return self.name
+
+class Image(db.Model):
+    __tablename__ = "Image"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text())
+
+    part_id = db.Column(db.Integer, db.ForeignKey(Part.id))
 
     def __repr__(self):
         return self.name
