@@ -1,9 +1,5 @@
 {% extends "layout.html" %}
 {% block content %}
-    <a>{{part.name}}</a> - {{part.size}} - Known Brands: {{part.brands}} -  {{part.type}} - {{part.tags}}<br></a>
-    {% for i in images.name %}
-    <img class="thumbnail" src="/static/images/{{i}}"/> <br>
-    <!-- {% else %}
-    <img class="thumbnail" src="/static/images/placeholder.png"/> <br> -->
-  {% endfor %}
+  <a>{{part.name}}</a> - {{part.size}} - Known Brands: {{part.brands}} - {{part.type}} - {{part.tags}}<br></a>
+  <img class="thumbnail" src="/static/images/{{images[0].name}}"><br>
 {% endblock %}
