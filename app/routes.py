@@ -1,7 +1,7 @@
 from app import app
 from flask import render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func
+from sqlalchemy import func, and_
 from werkzeug.utils import secure_filename
 import os
 
@@ -55,19 +55,29 @@ def all_parts():
 
 @app.route("/search", methods=['GET', 'POST'])
 def search():
-    term_results = []
-    brand_results = []
     form = Search()
     brands = models.Brand.query.all()
-    form.partbrand.choices = [(b.id, b.name) for b in brands]
+    results = []
+    brand_choices = [(0, 'None')]
+    brand_choices.extend((b.id, b.name) for b in brands)
+    form.partbrand.choices = brand_choices
 
-    if request.method=='POST':
-        if form.validate_on_submit():
-            print(func.lower(form.search.data))
-            search_term = '%' + form.search.data.lower() + '%'
-            term_results = models.Part.query.filter(models.Part.name.ilike(search_term)).all()
-            brand_results = models.Part.query.filter(models.Part.brands.any(id=form.partbrand.data)).all()
-    return render_template("search.html", form=form, term_results=term_results, brand_results=brand_results)
+    if request.method == 'POST' and form.validate_on_submit():
+        search_term = '%' + form.search.data.lower() + '%'
+        partbrand_id = form.partbrand.data
+        
+        if partbrand_id is 0:
+            results = models.Part.query.filter(
+                func.lower(models.Part.name).like(search_term)
+            ).all()
+        else:
+            results = models.Part.query.filter(
+                and_(
+                    func.lower(models.Part.name).like(search_term),  # Case insensitive search
+                    models.Part.brands.any(id=partbrand_id)
+                )
+            ).all()
+    return render_template("search.html", form=form, results=results)
 
 
 @app.route("/part/<int:id>")

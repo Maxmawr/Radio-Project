@@ -8,14 +8,8 @@
   <input type="submit" value="Search">
 </form>    
 
-{% for part in term_results %}
-  <a href = "/part/{{part.id}}">{{part.name}}</a> - {{part.size}} - Known Brands: {{part.brand}} -  {{part.type}} - {{part.tags}}<br>
-  {% if part.image %}
-    <img class="thumbnail" src="/static/images/{{part.image}}"/> <br>
-  {% endif %}
-{% endfor %}
-{% for part in brand_results %}
-  <a href = "/part/{{part.id}}">{{part.name}}</a> - {{part.size}} - Known Brands: {{part.brand}} -  {{part.type}} - {{part.tags}}<br>
+{% for part in results %}
+  <a href = "/part/{{part.id}}">{{part.name}}</a> - {{part.size}} - Known Brands: {{part.brands}} -  {{part.type}} - {{part.tags}}<br>
   {% if part.image %}
     <img class="thumbnail" src="/static/images/{{part.image}}"/> <br>
   {% endif %}
