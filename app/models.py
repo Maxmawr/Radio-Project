@@ -52,6 +52,8 @@ class Part(db.Model):
     type_id = db.Column(db.Integer, db.ForeignKey('Type.id'))
     size = db.Column(db.Text())
     image = db.Column(db.Text())
+    notes = db.Column(db.Text())
+    vrp_link = db.Column(db.Text())
 
     brands = db.relationship("Brand", secondary="PartBrands", back_populates="parts")
     tags = db.relationship("Tag", secondary="PartTag", back_populates="parts")

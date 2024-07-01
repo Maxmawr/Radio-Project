@@ -58,7 +58,7 @@ def search():
     form = Search()
     brands = models.Brand.query.all()
     results = []
-    brand_choices = [(0, 'None')]
+    brand_choices = [(0, 'N/A')]
     brand_choices.extend((b.id, b.name) for b in brands)
     form.partbrand.choices = brand_choices
 
