@@ -15,3 +15,8 @@ body{
     width:100%;
     text-align:center;
 }
+
+.header-link{
+    text-decoration: none;
+    color: black;
+}
