@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
-    <h1>All Parts Here</h1>
+    <h1>All Parts</h1>
     {% for part in all_parts %}
     <a href = "/part/{{part.id}}">{{part.name}}</a> - {{part.size}} - Known Brands: {{part.brands}} -  {{part.type}} - {{part.tags}}<br>
     {% if part.image %}

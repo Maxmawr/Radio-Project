@@ -1,5 +1,5 @@
 from app import app
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, and_
 from werkzeug.utils import secure_filename
@@ -65,8 +65,8 @@ def search():
     if request.method == 'POST' and form.validate_on_submit():
         search_term = '%' + form.search.data.lower() + '%'
         partbrand_id = form.partbrand.data
-        
-        if partbrand_id is 0:
+
+        if partbrand_id == 0:
             results = models.Part.query.filter(
                 func.lower(models.Part.name).like(search_term)
             ).all()
@@ -97,7 +97,7 @@ def add_part():
     types = models.Type.query.all()
     form.type.choices = [(t.id, t.name) for t in types]
 
-    if request.method=='GET':
+    if request.method == 'GET':
         return render_template('add_part.html', form=form, title="Add A Part")
     else:
         if form.validate_on_submit():
@@ -108,7 +108,7 @@ def add_part():
 
             new_part = models.Part()
 
-            #assigning new part's name
+            # assigning new part's name
             new_part.name = form.name.data
 
         # Handle image upload
@@ -119,11 +119,11 @@ def add_part():
                 image_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 new_part.image = filename  # Save filename to the database
 
-            #Adding tags
+            # Adding tags
             taglist = form.tags.data.split(",")
             for t in taglist:
                 tag = models.Tag.query.filter_by(name=t).first()
-                if tag == None:
+                if tag is None:
                     new_tag = models.Tag()
                     new_tag.name = t
                     db.session.add(new_tag)
@@ -140,7 +140,7 @@ def add_part():
             db.session.commit()
             return redirect(url_for('part', id=new_part.id))
         else:
-        # note the terrible logic, this has already been called once in this function - could the logic be tidied up?   
+            # note the terrible logic, this has already been called once in this function - could the logic be tidied up?   
             return render_template('add_part.html', form=form, title="Add A Part")
 
 
