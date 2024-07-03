@@ -1,4 +1,4 @@
-import io
+import io, csv
 from app import app
 from flask import make_response, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
@@ -148,6 +148,7 @@ def add_part():
 
 @app.route("/thumbnail/<int:id>")
 def thumbnail(id):
+    """This route delivers a scaled down thumbnail as a jpeg file"""
     image = models.Image.query.filter_by(part_id=id).first()
     filename = os.path.join(UPLOAD_FOLDER, image.name)
     # TODO: Cache thumbnails to disc
@@ -163,6 +164,25 @@ def thumbnail(id):
 
     response = make_response(buf.getvalue())
     response.headers.set('Content-Type', 'image/jpeg')
+    return response
+
+@app.route("/export")
+def export():
+    """Exports all the parts as a csv file"""
+    # TODO: This should only be admin
+    # TODO: Export all fields
+    allparts = models.Part.query.all()
+
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    w.writerow(["name"])
+    for part in allparts:
+        row = [part.name]
+        w.writerow(row)
+    response = make_response(buf.getvalue())
+    response.headers.set('Content-Type', 'text/csv')
+    response.headers.set(
+    'Content-Disposition', 'attachment', filename="all_parts.csv")
     return response
 
 if __name__ == "__main__":
