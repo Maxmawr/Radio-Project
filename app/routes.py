@@ -1,11 +1,13 @@
+import io
 from app import app
-from flask import render_template, request, redirect, url_for
+from flask import make_response, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, and_
 from werkzeug.utils import secure_filename
 import os
+from PIL import Image, ImageOps
 
-UPLOAD_FOLDER = 'app\static\images'
+UPLOAD_FOLDER = 'app/static/images'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -140,9 +142,28 @@ def add_part():
             db.session.commit()
             return redirect(url_for('part', id=new_part.id))
         else:
-            # note the terrible logic, this has already been called once in this function - could the logic be tidied up?   
+            # note the terrible logic, this has already been called once in this function - could the logic be tidied up?
             return render_template('add_part.html', form=form, title="Add A Part")
 
+
+@app.route("/thumbnail/<int:id>")
+def thumbnail(id):
+    image = models.Image.query.filter_by(part_id=id).first()
+    filename = os.path.join(UPLOAD_FOLDER, image.name)
+    # TODO: Cache thumbnails to disc
+    # TODO: Deal with missing images
+
+    # response.headers.set(
+    #     'Content-Disposition', 'attachment', filename=image.name)
+    full = Image.open(filename)
+    thumb = ImageOps.fit(full, (100, 100), Image.LANCZOS)
+
+    buf = io.BytesIO()
+    thumb.save(buf, format='JPEG')
+
+    response = make_response(buf.getvalue())
+    response.headers.set('Content-Type', 'image/jpeg')
+    return response
 
 if __name__ == "__main__":
     app.run(debug=True)
