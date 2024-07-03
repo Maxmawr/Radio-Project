@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, and_
 from werkzeug.utils import secure_filename
 import os
-from PIL import Image, ImageOps
+from PIL import Image as PIL_Image, ImageOps as PIL_ImageOps
 
 UPLOAD_FOLDER = 'app/static/images'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -22,6 +22,8 @@ db.init_app(app)
 
 import app.models as models
 from app.forms import Search, Add_Part
+
+THUMB_SIZE = 160
 
 # import sqlite3
 
@@ -156,8 +158,8 @@ def thumbnail(id):
 
     # response.headers.set(
     #     'Content-Disposition', 'attachment', filename=image.name)
-    full = Image.open(filename)
-    thumb = ImageOps.fit(full, (100, 100), Image.LANCZOS)
+    full = PIL_Image.open(filename)
+    thumb = PIL_ImageOps.fit(full, (THUMB_SIZE, THUMB_SIZE), PIL_Image.LANCZOS)
 
     buf = io.BytesIO()
     thumb.save(buf, format='JPEG')
