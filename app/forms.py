@@ -6,8 +6,8 @@ import app.models
 from datetime import datetime
 
 class Search(FlaskForm):
-    partbrand = SelectField('partbrand', coerce=int)
-    search = TextAreaField('search')
+    partbrand = SelectField('Brand', coerce=int)
+    search = TextAreaField('Name')
 
 class Add_Part(FlaskForm):
     name = StringField('name', validators=[DataRequired()])

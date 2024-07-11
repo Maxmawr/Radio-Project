@@ -1,3 +1,8 @@
+main{
+    margin: auto;
+    max-width: 80em;
+}
+
 .thumbnail{
     height: 50%
 }
@@ -6,7 +11,7 @@ body{
     background-color: #ead9b6;
 }
 
-.site-title{
+/* .site-title{
     font-family: "Libre Baskerville","Georgia","Times New Roman","serif";
     width: 100%;
     text-align: center;
@@ -14,9 +19,19 @@ body{
     padding: 0 65px 0 0;
     width:100%;
     text-align:center;
+} */
+
+nav{
+    padding: 10 0 10 0;
 }
 
-.header-link{
+nav a{
     text-decoration: none;
     color: black;
+    padding: .5em;
+}
+
+nav a:hover{
+    background-color: red;
+    color: white;
 }
