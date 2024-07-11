@@ -4,7 +4,7 @@
     {% for part in all_parts %}
     <a href = "/part/{{part.id}}">{{part.name}}</a> - {{part.size}} - Known Brands: {{part.brands}} -  {{part.type}} - {{part.tags}}<br>
     {% if part.image %}
-    <img class="thumbnail" src="/thumbnail/{{part.id}}"/> <br>
+    <img class="thumbnail" src="/static/images/{{part.image}}"/> <br>
     {% else %}
     <img class="thumbnail" src="/static/images/placeholder.png"/> <br>
     {% endif %}

@@ -1,6 +1,6 @@
 main{
     margin: auto;
-    max-width: 80em;
+    width: 80em;
 }
 
 .thumbnail{
@@ -8,6 +8,7 @@ main{
 }
 
 body{
+    font-family: "Libre Baskerville","Georgia","Times New Roman","serif";
     background-color: #ead9b6;
 }
 
@@ -18,7 +19,6 @@ body{
     display: block;
     padding: 0 65px 0 0;
     width:100%;
-    text-align:center;
 } */
 
 nav{
