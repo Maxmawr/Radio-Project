@@ -27,6 +27,8 @@ img{
 }
 
 body{
+    max-width: 80em;
+    margin: auto;
     font-family: "Libre Baskerville","Georgia","Times New Roman","serif";
     background-color: #ccf;
 }
@@ -59,3 +61,41 @@ nav a:hover{
     background-color: red;
     color: white;
 }
+
+/* tables */
+
+table {
+    border-collapse:collapse;
+    width: 100%;
+    background-color: rgb(180, 180, 255);
+}
+
+table th, .table td {
+    padding: 0.4rem;
+}
+
+table th {
+    text-align: left;
+}
+
+table td {
+    text-align: left;
+}
+
+table thead tr {
+    border-bottom: 2px solid #88f;
+}
+table tbody tr {
+    border-bottom: 1px solid #88f;
+}
+
+tr:nth-child(odd) {
+  background-color: #ccf;
+}
+
+.tag {
+    background-color: #f88;
+    padding: 0.4em;
+    border-radius: 8px;
+    color: black;
+  }

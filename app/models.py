@@ -51,7 +51,7 @@ class Part(db.Model):
     name = db.Column(db.Text())
     type_id = db.Column(db.Integer, db.ForeignKey('Type.id'))
     size = db.Column(db.Text())
-    image = db.Column(db.Text())
+    # image = db.Column(db.Text())
     notes = db.Column(db.Text())
     vrp_link = db.Column(db.Text())
 

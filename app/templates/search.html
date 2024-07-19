@@ -10,10 +10,33 @@
   <input type="submit" value="Search">
 </form>    
 
-{% for part in results %}
-  <a href = "/part/{{part.id}}">{{part.name}}</a> - {{part.size}} - Known Brands: {{part.brands}} -  {{part.type}} - {{part.tags}}<br>
-  {% if part.image %}
-    <img class="thumbnail" src="/static/images/{{part.image}}"/> <br>
-  {% endif %}
-{% endfor %}
+<table>
+  <thead>
+    <tr>
+    <th>Image</th>
+    <th>Name</th>
+    <th>Size</th>
+    <th>Brand</th>
+    <th>Type</th>
+    <th>Tags</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for part in results %}
+    <tr>
+      <td><a href="/part/{{part.id}}"><img class="thumbnail" src="/thumbnail/{{part.id}}"/></a></td>
+      <td><a href="/part/{{part.id}}">{{part.name}}</a></td>
+      <td>{{part.size}}</td>
+      <td>{{part.brands}}</td>
+      <td>{{part.type}}</td>
+      <td>
+          {% for t in part.tags %}
+              <a class="tag">{{t}}</a>
+          {% endfor %}
+      </td>
+    {% endfor %}
+    </tr>
+  </tbody>
+</table>
+
 {% endblock %}

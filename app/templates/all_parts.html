@@ -1,10 +1,33 @@
 {% extends "layout.html" %}
 {% block content %}
-    <h1>All Parts</h1>
-    {% for part in all_parts %}
-    <div class="item">
-        <a href = "/part/{{part.id}}"> <img class="thumbnail" src="/thumbnail/{{part.id}}"/></a>
-        <a href = "/part/{{part.id}}">{{part.name}}</a> - {{part.size}} - Known Brands: {{part.brands}} -  {{part.type}} - {{part.tags}}<br>
-    </div>
-    {% endfor %}
+  <h1>All Parts</h1>
+  <table>
+    <thead>
+      <tr>
+      <th>Image</th>
+      <th>Name</th>
+      <th>Size</th>
+      <th>Brand</th>
+      <th>Type</th>
+      <th>Tags</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for part in all_parts %}
+      <tr>
+        <td><a href="/part/{{part.id}}"><img class="thumbnail" src="/thumbnail/{{part.id}}"/></a></td>
+        <td><a href="/part/{{part.id}}">{{part.name}}</a></td>
+        <td>{{part.size}}</td>
+        <td>{{part.brands}}</td>
+        <td>{{part.type}}</td>
+        <td>
+            {% for t in part.tags %}
+                <a class="tag">{{t}}</a>
+            {% endfor %}
+        </td>
+      {% endfor %}
+      </tr>
+    </tbody>
+  </table>
+      
 {% endblock %}

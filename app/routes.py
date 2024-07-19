@@ -62,7 +62,7 @@ def search():
     form = Search()
     brands = models.Brand.query.all()
     results = []
-    brand_choices = [(0, 'N/A')]
+    brand_choices = [(0, 'None')]
     brand_choices.extend((b.id, b.name) for b in brands)
     form.partbrand.choices = brand_choices
 
@@ -87,7 +87,8 @@ def search():
 @app.route("/part/<int:id>")
 def part(id):
     part = models.Part.query.filter_by(id=id).first_or_404()
-    images = models.Image.query.filter_by(part_id=part.id).all()
+    images = models.Image.query.filter_by(part_id=part.id).first()
+    print(images)
     return render_template("part.html", part=part, images=images)
 
 
@@ -142,6 +143,7 @@ def add_part():
             # new_part.type = form.type.data
 
             db.session.add(new_part)
+            db.session.commit()
             new_image.part_id = new_part.id
             db.session.add(new_image)
             db.session.commit()
