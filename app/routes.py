@@ -111,6 +111,7 @@ def add_part():
             # print(type(selected_brand_id))
 
             new_part = models.Part()
+            new_image = models.Image()
 
             # assigning new part's name
             new_part.name = form.name.data
@@ -121,7 +122,7 @@ def add_part():
             if image_file.filename != '':
                 filename = secure_filename(image_file.filename)
                 image_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                new_part.image = filename  # Save filename to the database
+                new_image.name = filename  # Save filename to the database
 
             # Adding tags
             taglist = form.tags.data.split(",")
@@ -141,6 +142,8 @@ def add_part():
             # new_part.type = form.type.data
 
             db.session.add(new_part)
+            new_image.part_id = new_part.id
+            db.session.add(new_image)
             db.session.commit()
             return redirect(url_for('part', id=new_part.id))
         else:
