@@ -2,8 +2,9 @@
 {% block content %}
     <h1>All Parts</h1>
     {% for part in all_parts %}
-    <a href = "/part/{{part.id}}">{{part.name}}</a> - {{part.size}} - Known Brands: {{part.brands}} -  {{part.type}} - {{part.tags}}<br>
-
-    <img class="thumbnail" src="/thumbnail/{{part.id}}"/><br>
+    <div class="item">
+        <a href = "/part/{{part.id}}"> <img class="thumbnail" src="/thumbnail/{{part.id}}"/></a>
+        <a href = "/part/{{part.id}}">{{part.name}}</a> - {{part.size}} - Known Brands: {{part.brands}} -  {{part.type}} - {{part.tags}}<br>
+    </div>
     {% endfor %}
 {% endblock %}
