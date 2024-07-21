@@ -1,6 +1,7 @@
+from wsgiref.validate import validator
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SelectField, FileField
-from wtforms.validators import DataRequired, Optional, ValidationError
+from wtforms import StringField, TextAreaField, SelectField, FileField, IntegerField
+from wtforms.validators import DataRequired, NumberRange
 from flask_wtf.file import FileAllowed, FileRequired
 import app.models
 from datetime import datetime
@@ -13,6 +14,8 @@ class Add_Part(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
     brand = SelectField('brand', validators=[DataRequired()], coerce=int)
     tags = TextAreaField('tags')
+    sizenum = IntegerField('sizenum', validators=[NumberRange(min=0, message="Number must be non-negative")])
+    sizeunit = SelectField('sizeunit', choices=[('mm', 'mm'), ('cm', 'cm'), ('in', 'in')])
     type = SelectField('type', validators=[DataRequired()], coerce=int)
     image = FileField('Image', validators=[
         FileRequired(),

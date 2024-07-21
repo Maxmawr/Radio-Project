@@ -137,6 +137,9 @@ def add_part():
                     tag = models.Tag.query.filter_by(name=t).first()
                 new_part.tags.append(tag)
 
+            # Assigning new part's size
+            new_part.width = (form.sizenum.data, form.sizeunit.data)
+
             # Assigning new part's brand
             new_part.brands.append(brand)
 
