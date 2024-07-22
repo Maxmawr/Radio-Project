@@ -15,7 +15,6 @@ class Add_Part(FlaskForm):
     brand = SelectField('brand', validators=[DataRequired()], coerce=int)
     tags = TextAreaField('tags')
     sizenum = IntegerField('sizenum', validators=[NumberRange(min=0, message="Number must be non-negative")])
-    sizeunit = SelectField('sizeunit', choices=[('mm', 'mm'), ('cm', 'cm'), ('in', 'in')])
     type = SelectField('type', validators=[DataRequired()], coerce=int)
     image = FileField('Image', validators=[
         FileRequired(),
