@@ -17,7 +17,12 @@
       <tr>
         <td><a href="/part/{{part.id}}"><img class="thumbnail" src="/thumbnail/{{part.id}}"/></a></td>
         <td><a href="/part/{{part.id}}">{{part.name}}</a></td>
-        <td>{{part.width}} mm</p></td>
+        <td>
+          {% if part.width %}
+            {{part.width}} mm
+          {% else %}
+            Not Specified
+          {% endif %}</p></td>
         <td>{{part.brands}}</td>
         <td>{{part.type}}</td>
         <td>

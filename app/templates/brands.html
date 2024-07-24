@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
+    <p>Select Brand: {{ form.brand }} mm</p>
     {% for brand in brands %}
     {{brand.name}} - (by {{brand.manufacturer.name}})
     <br>

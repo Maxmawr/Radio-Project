@@ -21,7 +21,7 @@ WTF_CSRF_SECRET_KEY = 'sup3r_secr3t_passw3rd'
 db.init_app(app)
 
 import app.models as models
-from app.forms import Search, Add_Part
+from app.forms import Search, Add_Part, Search_Brand
 
 THUMB_SIZE = 160
 
@@ -41,8 +41,10 @@ def home():
 
 @app.route("/brands")
 def brands():
-    brands = models.Brand.query.all()
-    return render_template("brands.html", brands=brands)
+    form = Search_Brand()
+    brands = models.Brand.query.filter_by(id=form.brand.data).all()
+    form.brand.choices = ((b.id, b.name) for b in brands)
+    return render_template("brands.html", brands=brands, form=form)
 
 
 @app.route("/manufacturers")
@@ -138,12 +140,13 @@ def add_part():
                 new_part.tags.append(tag)
 
             # Assigning new part's size
-            new_part.width = (form.sizenum.data, form.sizeunit.data)
+            new_part.width = form.sizenum.data
 
             # Assigning new part's brand
             new_part.brands.append(brand)
 
-            # new_part.type = form.type.data
+            # Assigning new part's type
+            new_part.type_id = form.type.data
 
             db.session.add(new_part)
             db.session.commit()

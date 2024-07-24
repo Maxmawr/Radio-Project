@@ -6,9 +6,11 @@ from flask_wtf.file import FileAllowed, FileRequired
 import app.models
 from datetime import datetime
 
+
 class Search(FlaskForm):
     partbrand = SelectField('Brand', coerce=int)
     search = TextAreaField('Name')
+
 
 class Add_Part(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
@@ -20,3 +22,7 @@ class Add_Part(FlaskForm):
         FileRequired(),
         FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Images only!')
     ])
+
+
+class Search_Brand(FlaskForm):
+    brand = SelectField('brand', validators=[DataRequired()], coerce=int)
