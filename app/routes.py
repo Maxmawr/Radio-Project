@@ -44,7 +44,13 @@ def brands():
     form = Search_Brand()
     brands = models.Brand.query.filter_by(id=form.brand.data).all()
     form.brand.choices = ((b.id, b.name) for b in brands)
-    return render_template("brands.html", brands=brands, form=form)
+
+    if request.method == 'POST' and form.validate_on_submit():
+        results = models.Part.query.filter_by(models.Part.brands.any(id=form.brand.data)).all()
+    else:
+        results = None
+    print("results")
+    return render_template("brands.html", brands=brands, results=results, form=form)
 
 
 @app.route("/manufacturers")
