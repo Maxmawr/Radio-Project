@@ -5,9 +5,35 @@
     {{ form.csrf_token }}
     <p>Select Brand: {{ form.brand }} <span style="color:red">{{ form.brand.errors }}</span></p>
     <input type="submit" value="Submit">
-</form> 
+</form>
 
-    {% for brand in brands %}
-        {{brand.name}}
-    {% endfor %}
+<table>
+    <thead>
+      <tr>
+      <th>Image</th>
+      <th>Name</th>
+      <th>Size</th>
+      <th>Brand</th>
+      <th>Type</th>
+      <th>Tags</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for part in results %}
+      <tr>
+        <td><a href="/part/{{part.id}}"><img class="thumbnail" src="/thumbnail/{{part.id}}"/></a></td>
+        <td><a href="/part/{{part.id}}">{{part.name}}</a></td>
+        <td>{{part.size}}</td>
+        <td>{{part.brands}}</td>
+        <td>{{part.type}}</td>
+        <td>
+            {% for t in part.tags %}
+                <a class="tag">{{t}}</a>
+            {% endfor %}
+        </td>
+      {% endfor %}
+      </tr>
+    </tbody>
+  </table>
+
 {% endblock %}
