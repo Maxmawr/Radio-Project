@@ -16,6 +16,7 @@ class Brand(db.Model):
     alias = db.Column(db.Text())
     motto = db.Column(db.Text())
     manufacturer_id = db.Column(db.Integer, db.ForeignKey('Manufacturer.id'))
+    logo = db.Column(db.Integer())
 
     manufacturer = db.relationship("Manufacturer", back_populates="brands")
     parts = db.relationship("Part", secondary="PartBrands", back_populates="brands")

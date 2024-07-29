@@ -39,19 +39,18 @@ def home():
     return render_template("home.html")
 
 
-@app.route("/brands")
+@app.route("/brands", methods=['GET', 'POST'])
 def brands():
     form = Search_Brand()
     brands = models.Brand.query.all()
-    brand_choices = [(0, 'None')]
-    brand_choices.extend((b.id, b.name) for b in brands)
+    form.brand.choices = [(0, 'None')]
+    form.brand.choices.extend((b.id, b.name) for b in brands)
 
     if request.method == 'POST' and form.validate_on_submit():
-        results = models.Part.query.filter_by(models.Part.brands.any(id=form.brand.data)).all()
+        results = models.Part.query.filter(models.Part.brands.any(id=form.brand.data)).all()
     else:
-        results = None
-    print(results)
-    return render_template("brands.html", results=results, form=form)
+        results = []
+    return render_template("brands.html", results=results, form=form, brands=brands)
 
 
 @app.route("/manufacturers")
