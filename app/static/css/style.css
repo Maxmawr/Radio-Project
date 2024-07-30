@@ -101,3 +101,28 @@ tr:nth-child(odd) {
     border-radius: 8px;
     color: black;
   }
+
+  /* Grid */
+
+  .brands-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    align-items: center;
+    line-height: 120%;
+    font-size: 90%;
+}
+
+.brands-image{
+    text-align: center;
+}
+
+.brands-image img{
+    background-color: transparent;
+    height: auto;
+    max-height: 150px;
+    max-width: 150px;
+    padding: 2px;
+    background: white;
+    border: 1px solid black;
+    box-shadow: -3px 3px 8px silver;
+}

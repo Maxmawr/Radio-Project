@@ -25,4 +25,4 @@ class Add_Part(FlaskForm):
 
 
 class Search_Brand(FlaskForm):
-    brand = SelectField('brand', validators=[DataRequired()], coerce=int)
+    brand = SelectField('brand', coerce=int)
