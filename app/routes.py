@@ -48,6 +48,7 @@ def brands():
 
     if request.method == 'POST' and form.validate_on_submit():
         results = models.Part.query.filter(models.Part.brands.any(id=form.brand.data)).all()
+        print(results)
     else:
         results = []
     return render_template("brands.html", results=results, form=form, brands=brands)

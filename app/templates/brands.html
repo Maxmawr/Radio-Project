@@ -3,8 +3,8 @@
 
 <form id="brand-form" method="POST" enctype="multipart/form-data">
     {{ form.csrf_token }}
-    <input type="hidden" name="brand" id="selected-brand">
     <p>Select Brand: {{ form.brand }} <span style="color:red">{{ form.brand.errors }}</span></p>
+    <input type="hidden" name="brand" id="selected-brand">
     <input type="submit" value="Submit">
 </form>
 
