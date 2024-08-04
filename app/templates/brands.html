@@ -4,8 +4,12 @@
 <form id="brand-form" method="POST" enctype="multipart/form-data">
     {{ form.csrf_token }}
     <p>Select Brand: {{ form.brand }} <span style="color:red">{{ form.brand.errors }}</span></p>
-    <input type="hidden" name="brand" id="selected-brand">
     <input type="submit" value="Submit">
+</form>
+
+<form id="hidden-form" method="POST" enctype="multipart/form-data">
+  {{ form.csrf_token }}
+  <input type="hidden" name="brand" id="selected-brand">
 </form>
 
 <h2>Or select from one of NZ's major brands:</h2>
@@ -51,7 +55,7 @@
 <script>
   function selectBrand(brandAlias) {
     document.getElementById('selected-brand').value = brandAlias;
-    document.getElementById('brand-form').submit();
+    document.getElementById('hidden-form').submit();
   }
 </script>
 
