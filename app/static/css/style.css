@@ -84,6 +84,12 @@ table td {
     text-align: left;
 }
 
+table td + td {
+    border-left:1px solid #88f;
+    padding: 10px;
+}
+
+
 table thead tr {
     border-bottom: 2px solid #88f;
 }
@@ -95,11 +101,17 @@ tr:nth-child(odd) {
   background-color: #ccf;
 }
 
+.tag-box {
+    display: flex;
+    flex-wrap: wrap;
+}
+
 .tag {
     background-color: #f88;
     padding: 0.4em;
     border-radius: 8px;
     color: black;
+    margin: 2px;
   }
 
   /* Grid */

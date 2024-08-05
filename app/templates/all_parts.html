@@ -20,12 +20,15 @@
         <td>
           {% if part.width %}
             {{part.width}} mm
+              {% if part.height %}
+                by {{part.height}} mm
+              {% endif %}
           {% else %}
             Not Specified
           {% endif %}</p></td>
         <td>{{part.brands}}</td>
         <td>{{part.type}}</td>
-        <td>
+        <td class = tag-box>
             {% for t in part.tags %}
                 <a class="tag">{{t}}</a>
             {% endfor %}
