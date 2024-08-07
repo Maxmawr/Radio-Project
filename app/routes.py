@@ -205,5 +205,10 @@ def export():
     'Content-Disposition', 'attachment', filename="all_parts.csv")
     return response
 
-if __name__ == "__main__":
-    app.run(debug=True)
+@app.route("/login")
+def login():
+    return render_template("login.html")
+
+@app.route("/login_php")
+def login_php():
+    return render_template("login.php")

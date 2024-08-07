@@ -1,4 +1,5 @@
 from app.routes import db
+from flask_login import UserMixin
 
 PartBrands = db.Table('PartBrands',
     db.Column('part_id', db.Integer, db.ForeignKey('Part.id')),
@@ -87,4 +88,3 @@ class Tag(db.Model):
 
     def __repr__(self):
         return self.name
-
