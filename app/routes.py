@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, and_
 from werkzeug.utils import secure_filename
 import os
+import requests
 from PIL import Image as PIL_Image, ImageOps as PIL_ImageOps
 
 UPLOAD_FOLDER = 'app/static/images'
@@ -24,6 +25,7 @@ import app.models as models
 from app.forms import Search, Add_Part, Search_Brand
 
 THUMB_SIZE = 160
+
 
 # import sqlite3
 
@@ -205,10 +207,13 @@ def export():
     'Content-Disposition', 'attachment', filename="all_parts.csv")
     return response
 
+
 @app.route("/login")
 def login():
     return render_template("login.html")
 
+
 @app.route("/login_php")
-def login_php():
-    return render_template("login.php")
+def call_php():
+    response = requests.get("http://localhost/login.php")
+    return response.text
