@@ -5,8 +5,9 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, and_
 from werkzeug.utils import secure_filename
 import os
-import requests
 from PIL import Image as PIL_Image, ImageOps as PIL_ImageOps
+from flask_login import LoginManager, login_user, logout_user
+from flask_bcrypt import Bcrypt 
 
 UPLOAD_FOLDER = 'app/static/images'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -23,6 +24,13 @@ db.init_app(app)
 
 import app.models as models
 from app.forms import Search, Add_Part, Search_Brand
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+db.init_app(app)
+
+
+bcrypt = Bcrypt(app) 
 
 THUMB_SIZE = 160
 
@@ -208,12 +216,49 @@ def export():
     return response
 
 
-@app.route("/login")
+
+@app.route("/login", methods=["GET", "POST"])
 def login():
+    # If a post request was made, find the user by 
+    # filtering for the username
+    if request.method == "POST":
+        user = models.Users.query.filter_by(
+            username=request.form.get("username")).first()
+        # Check if the password entered is the 
+        # same as the user's password
+        password = request.form.get("password")
+        if bcrypt.check_password_hash(user.hashed_password, password):
+            # Use the login_user method to log in the user
+            login_user(user)
+            return redirect(url_for("home"))
+        # Redirect the user back to the home
+        # (we'll create the home route in a moment)
     return render_template("login.html")
 
 
-@app.route("/login_php")
-def call_php():
-    response = requests.get("http://localhost/login.php")
-    return response.text
+@app.route('/register', methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        new_user = models.Users(username=username, password=password, hashed_password=hashed_password)
+        
+        db.session.add(new_user)
+        db.session.commit()
+        
+        return redirect(url_for("login"))
+    
+    return render_template("sign_up.html")
+
+
+@login_manager.user_loader
+def loader_user(user_id):
+    return models.Users.query.get(user_id)
+
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect(url_for("home"))

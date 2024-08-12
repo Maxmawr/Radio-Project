@@ -4,4 +4,10 @@
     <p>Welcome to the demo version of this website. This is an online database that will include all of the vintage radio parts in a collection.
         This is intended to make it easier to organise collections, as well as letting other members of the vintage radio society check if it has any parts they may be looking for.
     </p>
+    {% if current_user.is_authenticated %}
+    <h1>You are logged in</h1>
+    <a href="/logout">Logout</a>
+    {% else %}
+    <h1>You are not logged in</h1>
+    {% endif %}
 {%endblock%}

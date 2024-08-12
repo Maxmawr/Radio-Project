@@ -88,3 +88,15 @@ class Tag(db.Model):
 
     def __repr__(self):
         return self.name
+
+
+class Users(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(250), unique=True,
+                         nullable=False)
+    password = db.Column(db.String(250),
+                         nullable=False)
+    hashed_password = db.Column(db.String())
+
+    def __repr__(self):
+        return self.name
