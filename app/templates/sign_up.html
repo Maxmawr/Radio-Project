@@ -1,3 +1,6 @@
+{% extends "layout.html" %}
+{% block content %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -5,17 +8,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sign Up</title>
-    <style>
-      h1 {
-        color: green;
-      }
-    </style>
   </head>
   <body>
     <nav>
       <ul>
         <li><a href="/login">Login</a></li>
-        <li><a href="/register">Create account</a></li>
       </ul>
     </nav>
     <h1>Create an account</h1>
@@ -28,3 +25,5 @@
     </form>
   </body>
 </html>
+
+{% endblock %}
