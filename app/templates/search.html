@@ -26,10 +26,18 @@
     <tr>
       <td><a href="/part/{{part.id}}"><img class="thumbnail" src="/thumbnail/{{part.id}}"/></a></td>
       <td><a href="/part/{{part.id}}">{{part.name}}</a></td>
-      <td>{{part.size}}</td>
+      <td>
+        {% if part.width %}
+          Width - {{part.width}} mm<br>
+            {% if part.height %}
+              Height -  {{part.height}} mm
+            {% endif %}
+        {% else %}
+          Not Specified
+        {% endif %}</p></td>
       <td>{{part.brands}}</td>
       <td>{{part.type}}</td>
-      <td>
+      <td class = tag-box>
           {% for t in part.tags %}
               <a class="tag">{{t}}</a>
           {% endfor %}

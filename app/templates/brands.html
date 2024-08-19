@@ -24,33 +24,41 @@
 </div>
 
 <table>
-    <thead>
-      <tr>
-        <th>Image</th>
-        <th>Name</th>
-        <th>Size</th>
-        <th>Brand</th>
-        <th>Type</th>
-        <th>Tags</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for part in results %}
-      <tr>
-        <td><a href="/part/{{ part.id }}"><img class="thumbnail" src="/thumbnail/{{ part.id }}" alt="{{ part.name }}"/></a></td>
-        <td><a href="/part/{{ part.id }}">{{ part.name }}</a></td>
-        <td>{{ part.size }}</td>
-        <td>{{ part.brands }}</td>
-        <td>{{ part.type }}</td>
-        <td>
-            {% for t in part.tags %}
-                <a class="tag">{{ t }}</a>
-            {% endfor %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <thead>
+    <tr>
+    <th>Image</th>
+    <th>Name</th>
+    <th>Size</th>
+    <th>Brand</th>
+    <th>Type</th>
+    <th>Tags</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for part in results %}
+    <tr>
+      <td><a href="/part/{{part.id}}"><img class="thumbnail" src="/thumbnail/{{part.id}}"/></a></td>
+      <td><a href="/part/{{part.id}}">{{part.name}}</a></td>
+      <td>
+        {% if part.width %}
+          Width - {{part.width}} mm<br>
+            {% if part.height %}
+              Height -  {{part.height}} mm
+            {% endif %}
+        {% else %}
+          Not Specified
+        {% endif %}</p></td>
+      <td>{{part.brands}}</td>
+      <td>{{part.type}}</td>
+      <td class = tag-box>
+          {% for t in part.tags %}
+              <a class="tag">{{t}}</a>
+          {% endfor %}
+      </td>
+    {% endfor %}
+    </tr>
+  </tbody>
+</table>
 
 <script>
   function selectBrand(brandAlias) {

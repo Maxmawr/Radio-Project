@@ -19,9 +19,9 @@
         <td><a href="/part/{{part.id}}">{{part.name}}</a></td>
         <td>
           {% if part.width %}
-            {{part.width}} mm
+            Width - {{part.width}} mm<br>
               {% if part.height %}
-                by {{part.height}} mm
+                Height -  {{part.height}} mm
               {% endif %}
           {% else %}
             Not Specified
