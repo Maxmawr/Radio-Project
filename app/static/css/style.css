@@ -142,3 +142,7 @@ tr:nth-child(odd) {
     border: 1px solid black;
     box-shadow: -3px 3px 8px silver;
 }
+
+.nav{
+    text-align: center;
+}
