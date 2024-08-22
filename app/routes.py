@@ -2,12 +2,12 @@ import io, csv
 from app import app
 from flask import make_response, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func, and_
+from sqlalchemy import func, and_, or_
 from werkzeug.utils import secure_filename
 import os
 from PIL import Image as PIL_Image, ImageOps as PIL_ImageOps
 from flask_login import LoginManager, login_user, logout_user
-from flask_bcrypt import Bcrypt 
+from flask_bcrypt import Bcrypt
 
 UPLOAD_FOLDER = 'app/static/images'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -38,9 +38,9 @@ THUMB_SIZE = 160
 # import sqlite3
 
 
-# @app.errorhandler(404)
-# def page_not_found(e):
-#    return render_template('404.html'), 404
+@app.errorhandler(404)
+def page_not_found(e):
+   return render_template('404.html'), 404
 
 
 # Route for the home page
@@ -96,10 +96,12 @@ def search():
         else:
             results = models.Part.query.filter(
                 and_(
-                    func.lower(models.Part.name).like(search_term),  # Case insensitive search
-                    models.Part.brands.any(id=partbrand_id)
-                )
-            ).all()
+                    func.lower(models.Part.name).like(search_term),
+                    models.Part.brands.any(id=partbrand_id),
+                    or_(
+                        func.lower(models.Part.tags.like(search_term))
+                    ))).all()
+        print(results)
     return render_template("search.html", form=form, results=results)
 
 
