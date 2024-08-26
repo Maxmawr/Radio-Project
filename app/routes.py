@@ -57,8 +57,8 @@ def brands():
     form.brand.choices.extend((b.id, b.name) for b in brands)
 
     if request.method == 'POST' and form.validate_on_submit():
-        results = models.Part.query.filter(models.Part.brands.any(id=form.brand.data)).all()
-        print(results)
+        brand = form.brand.data
+        return(redirect(url_for('search', brand=brand)))
     else:
         results = []
     return render_template("brands.html", results=results, form=form, brands=brands)
@@ -80,28 +80,38 @@ def all_parts():
 def search():
     form = Search()
     brands = models.Brand.query.all()
-    results = []
     brand_choices = [(0, 'None')]
     brand_choices.extend((b.id, b.name) for b in brands)
     form.partbrand.choices = brand_choices
 
-    if request.method == 'POST' and form.validate_on_submit():
-        search_term = '%' + form.search.data.lower() + '%'
-        partbrand_id = form.partbrand.data
+    # Get the 'brand' query parameter
+    brand = request.args.get('brand', type=int)
 
-        if partbrand_id == 0:
-            results = models.Part.query.filter(
-                func.lower(models.Part.name).like(search_term)
-            ).all()
-        else:
-            results = models.Part.query.filter(
-                and_(
-                    func.lower(models.Part.name).like(search_term),
-                    models.Part.brands.any(id=partbrand_id),
-                    or_(
-                        func.lower(models.Part.tags.like(search_term))
-                    ))).all()
-        print(results)
+    # Set the initial value of the 'partbrand' field based on the 'brand' parameter
+    if brand is not None:
+        form.partbrand.data = brand
+
+    results = []
+    if brand:
+        results = models.Part.query.filter(models.Part.brands.any(id=brand)).all()
+    else:
+        if request.method == 'POST' and form.validate_on_submit():
+            search_term = '%' + form.search.data.lower() + '%'
+            partbrand_id = form.partbrand.data
+
+            if partbrand_id == 0:
+                results = models.Part.query.filter(
+                    func.lower(models.Part.name).like(search_term)
+                ).all()
+            else:
+                results = models.Part.query.filter(
+                    and_(
+                        func.lower(models.Part.name).like(search_term),
+                        models.Part.brands.any(id=partbrand_id),
+                        or_(
+                            func.lower(models.Part.tags.like(search_term))
+                        ))).all()
+
     return render_template("search.html", form=form, results=results)
 
 
