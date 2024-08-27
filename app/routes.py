@@ -88,29 +88,26 @@ def search():
     brand = request.args.get('brand', type=int)
 
     # Set the initial value of the 'partbrand' field based on the 'brand' parameter
-    if brand is not None:
-        form.partbrand.data = brand
 
     results = []
-    if brand:
+    if request.method == 'POST' and form.validate_on_submit():
+        search_term = '%' + form.search.data.lower() + '%'
+        partbrand_id = form.partbrand.data
+        if partbrand_id == 0:
+            results = models.Part.query.filter(
+                func.lower(models.Part.name).like(search_term)
+            ).all()
+        else:
+            results = models.Part.query.filter(
+                and_(
+                    func.lower(models.Part.name).like(search_term),
+                    models.Part.brands.any(id=partbrand_id),
+                    func.lower(models.Part.tags).like(search_term)
+                )
+            ).all()
+    elif brand is not None:
+        form.partbrand.data = brand
         results = models.Part.query.filter(models.Part.brands.any(id=brand)).all()
-    else:
-        if request.method == 'POST' and form.validate_on_submit():
-            search_term = '%' + form.search.data.lower() + '%'
-            partbrand_id = form.partbrand.data
-
-            if partbrand_id == 0:
-                results = models.Part.query.filter(
-                    func.lower(models.Part.name).like(search_term)
-                ).all()
-            else:
-                results = models.Part.query.filter(
-                    and_(
-                        func.lower(models.Part.name).like(search_term),
-                        models.Part.brands.any(id=partbrand_id),
-                        or_(
-                            func.lower(models.Part.tags.like(search_term))
-                        ))).all()
 
     return render_template("search.html", form=form, results=results)
 
