@@ -80,6 +80,10 @@ def all_parts():
 def search():
     form = Search()
     brands = models.Brand.query.all()
+    tags = models.Tag.query.all()
+    tag_choices = [(0, 'None')]
+    tag_choices.extend((t.id, t.name) for t in tags)
+    form.tag.choices = tag_choices
     brand_choices = [(0, 'None')]
     brand_choices.extend((b.id, b.name) for b in brands)
     form.partbrand.choices = brand_choices
@@ -93,18 +97,25 @@ def search():
     if request.method == 'POST' and form.validate_on_submit():
         search_term = '%' + form.search.data.lower() + '%'
         partbrand_id = form.partbrand.data
-        if partbrand_id == 0:
-            results = models.Part.query.filter(
-                func.lower(models.Part.name).like(search_term)
-            ).all()
-        else:
-            results = models.Part.query.filter(
-                and_(
-                    func.lower(models.Part.name).like(search_term),
-                    models.Part.brands.any(id=partbrand_id),
-                    func.lower(models.Part.tags).like(search_term)
-                )
-            ).all()
+        tag_id = form.tag.data
+
+        # Start with a base query
+        query = models.Part.query
+
+        # Add name search condition
+        query = query.filter(func.lower(models.Part.name).like(search_term))
+
+        # Add brand search condition if partbrand_id is provided
+        if partbrand_id:
+            query = query.filter(models.Part.brands.any(id=partbrand_id))
+
+        # Add tag search condition if tags are provided
+        if tag_id:
+            query = query.filter(models.Part.tags.any(id=tag_id))
+
+        # Execute the query
+        results = query.all()
+
     elif brand is not None:
         form.partbrand.data = brand
         results = models.Part.query.filter(models.Part.brands.any(id=brand)).all()
