@@ -81,16 +81,13 @@ table th, .table td {
     padding: 0.4rem;
 }
 
-table th {
-    text-align: left;
-}
-
-table td {
+table th, td {
     text-align: left;
 }
 
 table td + td {
     border-left:1px solid rgb(238, 162, 31);
+    border-right:1px solid rgb(238, 162, 31);
     padding: 10px;
 }
 

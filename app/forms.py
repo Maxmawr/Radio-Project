@@ -10,7 +10,7 @@ from datetime import datetime
 class Search(FlaskForm):
     partbrand = SelectField('Brand', coerce=int)
     search = TextAreaField('Name')
-    tag = SelectField('tag', coerce=int)
+    tag = SelectField('Tag', coerce=int)
 
 
 class Add_Part(FlaskForm):

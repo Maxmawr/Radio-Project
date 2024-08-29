@@ -27,7 +27,6 @@ from app.forms import Search, Add_Part, Search_Brand
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-db.init_app(app)
 
 
 bcrypt = Bcrypt(app) 
