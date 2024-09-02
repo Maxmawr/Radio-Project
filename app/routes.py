@@ -94,7 +94,7 @@ def search():
 
     results = []
     if request.method == 'POST' and form.validate_on_submit():
-        search_term = '%' + form.search.data.lower() + '%'
+        search_term = '%' + form.search.data.strip().lower() + '%'
         partbrand_id = form.partbrand.data
         tag_id = form.tag.data
 
@@ -102,7 +102,8 @@ def search():
         query = models.Part.query
 
         # Add name search condition
-        query = query.filter(func.lower(models.Part.name).like(search_term))
+        if search_term:
+            query = query.filter(func.lower(models.Part.name).like(search_term))
 
         # Add brand search condition if partbrand_id is provided
         if partbrand_id:
