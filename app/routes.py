@@ -9,7 +9,7 @@ from PIL import Image as PIL_Image, ImageOps as PIL_ImageOps
 from flask_login import LoginManager, login_user, logout_user
 from flask_bcrypt import Bcrypt
 
-UPLOAD_FOLDER = 'app/static/images'
+UPLOAD_FOLDER = '/home/maxmawr/mysite/app/static/images'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
