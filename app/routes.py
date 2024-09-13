@@ -1,6 +1,7 @@
 import io, csv
 from app import app
-from flask import make_response, render_template, request, redirect, url_for
+from flask import make_response, render_template, request, redirect, jsonify, url_for
+from flask_caching import Cache
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, and_, or_
 from werkzeug.utils import secure_filename
@@ -9,7 +10,12 @@ from PIL import Image as PIL_Image, ImageOps as PIL_ImageOps
 from flask_login import LoginManager, login_user, logout_user
 from flask_bcrypt import Bcrypt
 
-UPLOAD_FOLDER = '/home/maxmawr/mysite/app/static/images'
+UPLOAD_FOLDER = 'app/static/images'
+app.config['CACHE_TYPE'] = 'filesystem'
+app.config['CACHE_DIR'] = 'cache-directory'
+cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
+cache.init_app(app)
+
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -197,15 +203,14 @@ def add_part():
 
 
 @app.route("/thumbnail/<int:id>")
+@cache.cached(timeout=50)
 def thumbnail(id):
+    print(cache.get(f'thumbnail:{id}'))
     """This route delivers a scaled down thumbnail as a jpeg file"""
     image = models.Image.query.filter_by(part_id=id).first()
     filename = os.path.join(UPLOAD_FOLDER, image.name)
-    # TODO: Cache thumbnails to disc
     # TODO: Deal with missing images
 
-    # response.headers.set(
-    #     'Content-Disposition', 'attachment', filename=image.name)
     full = PIL_Image.open(filename)
     thumb = PIL_ImageOps.fit(full, (THUMB_SIZE, THUMB_SIZE), PIL_Image.LANCZOS)
 
