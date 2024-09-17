@@ -19,13 +19,14 @@ h1{
     text-align: center;
 }
 
-img{
-    max-width: 100%;
+.part-image{
+    max-width: 50%;
 }
 
 .thumbnail{
     height: 50%
 }
+
 
 body{
     max-width: 80em;
