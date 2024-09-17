@@ -1,15 +1,56 @@
-import io, csv
+"""
+Flask Application for Part Management and Image Handling
+
+This script defines a Flask web application that provides several routes for managing parts and brands, handling image uploads and transformations, and user authentication.
+
+Key Features:
+- Upload and process images (displayed as thumbnails and cached to disk).
+- Manage parts with various attributes, including tags and brands.
+- Search for parts based on different criteria.
+- User authentication (login, register, and logout).
+- CSRF protection and password hashing.
+
+Dependencies:
+- Flask: Core web framework.
+- Flask-Caching: Caching support for Flask.
+- Flask-SQLAlchemy: SQLAlchemy integration with Flask for ORM.
+- Flask-Login: User session management.
+- Flask-Bcrypt: Password hashing for secure authentication.
+- Flask-WTF: Intergration of Flask and WTForms
+- SQLAlchemy: SQL toolkit and Object Relational Mapper.
+- Werkzeug: Utilities for handling file uploads.
+- Pillow: Imaging library for image processing.
+- io: For handling in-memory file streams.
+- csv: For CSV file operations.
+- os: For file path operations.
+
+Required `pip` packages:
+- Flask
+- Flask-Bcrypt
+- Flask-Caching
+- Flask-Login
+- Flask-SQLAlchemy
+- Flask-WTF
+- SQLAlchemy
+- Werkzeug
+- Pillow
+"""
+
+import io
+import csv
 from app import app
-from flask import make_response, render_template, request, redirect, jsonify, url_for
+from flask import make_response, render_template, request, redirect, url_for
 from flask_caching import Cache
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func, and_, or_
+from sqlalchemy import func
 from werkzeug.utils import secure_filename
 import os
 from PIL import Image as PIL_Image, ImageOps as PIL_ImageOps
-from flask_login import LoginManager, login_user, logout_user
+from flask_login import LoginManager, login_user, logout_user, login_required
 from flask_bcrypt import Bcrypt
 
+
+# Configuration for file uploads and caching
 UPLOAD_FOLDER = 'app/static/images'
 app.config['CACHE_TYPE'] = 'filesystem'
 app.config['CACHE_DIR'] = 'cache-directory'
@@ -17,9 +58,9 @@ cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
 cache.init_app(app)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# Setup SQLAlchemy
 basedir = os.path.abspath(os.path.dirname(__file__))
 db = SQLAlchemy()
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, "radio.db")
@@ -31,21 +72,20 @@ db.init_app(app)
 import app.models as models
 from app.forms import Search, Add_Part, Search_Brand
 
+# Initialize login manager for user session management
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+# Initialize Bcrypt for password hashing
+bcrypt = Bcrypt(app)
 
-bcrypt = Bcrypt(app) 
-
+# Thumbnail size for image processing
 THUMB_SIZE = 160
 
-
-# import sqlite3
-
-
+# Error handler with 404 route
 @app.errorhandler(404)
 def page_not_found(e):
-   return render_template('404.html'), 404
+    return render_template('404.html'), 404
 
 
 # Route for the home page
@@ -53,7 +93,7 @@ def page_not_found(e):
 def home():
     return render_template("home.html")
 
-
+# Route for brands page
 @app.route("/brands", methods=['GET', 'POST'])
 def brands():
     form = Search_Brand()
@@ -63,24 +103,24 @@ def brands():
 
     if request.method == 'POST' and form.validate_on_submit():
         brand = form.brand.data
-        return(redirect(url_for('search', brand=brand)))
+        return (redirect(url_for('search', brand=brand)))
     else:
         results = []
     return render_template("brands.html", results=results, form=form, brands=brands)
 
-
+# Route for showing all manufacturers
 @app.route("/manufacturers")
 def manufacturers():
     manufacturers = models.Manufacturer.query.all()
     return render_template("manufacturers.html", manufacturers=manufacturers)
 
-
+# Route for showing all parts
 @app.route("/all_parts")
 def all_parts():
     all_parts = models.Part.query.all()
     return render_template("all_parts.html", all_parts=all_parts)
 
-
+# Route for searching parts
 @app.route("/search", methods=['GET', 'POST'])
 def search():
     form = Search()
@@ -128,16 +168,16 @@ def search():
 
     return render_template("search.html", form=form, results=results)
 
-
+# Route for specific part page
 @app.route("/part/<int:id>")
 def part(id):
     part = models.Part.query.filter_by(id=id).first_or_404()
     images = models.Image.query.filter_by(part_id=part.id).first()
-    print(images)
     return render_template("part.html", part=part, images=images)
 
-
+# Route for the adding parts function
 @app.route('/add_part', methods=['GET', 'POST'])
+@login_required
 def add_part():
     form = Add_Part()
 
@@ -201,7 +241,7 @@ def add_part():
             # note the terrible logic, this has already been called once in this function - could the logic be tidied up?
             return render_template('add_part.html', form=form, title="Add A Part")
 
-
+# Route for thumbnail generation and caching
 @app.route("/thumbnail/<int:id>")
 @cache.cached(timeout=50)
 def thumbnail(id):
@@ -221,6 +261,7 @@ def thumbnail(id):
     response.headers.set('Content-Type', 'image/jpeg')
     return response
 
+# Route for exporting as a csv
 @app.route("/export")
 def export():
     """Exports all the parts as a csv file"""
@@ -237,44 +278,39 @@ def export():
     response = make_response(buf.getvalue())
     response.headers.set('Content-Type', 'text/csv')
     response.headers.set(
-    'Content-Disposition', 'attachment', filename="all_parts.csv")
+        'Content-Disposition', 'attachment', filename="all_parts.csv")
     return response
 
 
-
+# Route for logging in
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    # If a post request was made, find the user by 
-    # filtering for the username
     if request.method == "POST":
         user = models.Users.query.filter_by(
             username=request.form.get("username")).first()
-        # Check if the password entered is the 
-        # same as the user's password
+        # Check if the password entered is the same as the user's password
         password = request.form.get("password")
         if bcrypt.check_password_hash(user.hashed_password, password):
             # Use the login_user method to log in the user
             login_user(user)
             return redirect(url_for("home"))
-        # Redirect the user back to the home
-        # (we'll create the home route in a moment)
     return render_template("login.html")
 
-
+# Route for registering a new account
 @app.route('/register', methods=["GET", "POST"])
 def register():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-        
+
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
         new_user = models.Users(username=username, password=password, hashed_password=hashed_password)
-        
+
         db.session.add(new_user)
         db.session.commit()
-        
+
         return redirect(url_for("login"))
-    
+
     return render_template("sign_up.html")
 
 
@@ -282,7 +318,7 @@ def register():
 def loader_user(user_id):
     return models.Users.query.get(user_id)
 
-
+# Route for logging out
 @app.route("/logout")
 def logout():
     logout_user()
