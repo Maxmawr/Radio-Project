@@ -26,7 +26,7 @@
           {% else %}
             Not Specified
           {% endif %}</p></td>
-        <td>{{part.brands}}</td>
+        <td>{{part.brands | join(", ")}}</td>
         <td>{{part.type}}</td>
         <td class = tag-box>
             {% for t in part.tags %}
@@ -37,5 +37,4 @@
       </tr>
     </tbody>
   </table>
-      
 {% endblock %}

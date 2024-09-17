@@ -1,5 +1,14 @@
 {% extends "layout.html" %}
 {% block content %}
-  <a>{{part.name}}</a> - {{part.size}} - Known Brands: {{part.brands}} - {{part.type}} - {{part.tags}}<br></a>
-  <img src="/static/images/{{images.name}}"><br>
+  <a>{{part.name}}</a> - {% if part.width %}
+  Width - {{part.width}} mm - 
+    {% if part.height %}
+      Height -  {{part.height}} mm
+    {% endif %}
+{% else %}
+  Not Specified
+{% endif %}
+- Known Brands: {{part.brands | join(", ")}} - {{part.type}}<br>
+  <img src="/static/images/{{images.name}}" class="part-image"><br>
+  {{part.tags | join(", ")}}
 {% endblock %}
