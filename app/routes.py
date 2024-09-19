@@ -70,7 +70,7 @@ WTF_CSRF_SECRET_KEY = 'sup3r_secr3t_passw3rd'
 db.init_app(app)
 
 import app.models as models
-from app.forms import Search, Add_Part, Search_Brand
+from app.forms import Search, Add_Part, Search_Brand, Search_Tag
 
 # Initialize login manager for user session management
 login_manager = LoginManager()
@@ -115,10 +115,21 @@ def manufacturers():
     return render_template("manufacturers.html", manufacturers=manufacturers)
 
 # Route for showing all parts
-@app.route("/all_parts")
+@app.route("/all_parts", methods=['GET', 'POST'])
 def all_parts():
     all_parts = models.Part.query.all()
-    return render_template("all_parts.html", all_parts=all_parts)
+    form = Search_Tag()
+    tags = models.Tag.query.all()
+    form.tag.choices = [(0, 'None')]
+    form.tag.choices.extend((t.id, t.name) for t in tags)
+
+    if request.method == 'POST' and form.validate_on_submit():
+        tag = form.tag.data
+        print(tag)
+        return (redirect(url_for('search', tag=tag)))
+    else:
+        results = []
+    return render_template("all_parts.html", all_parts=all_parts, results=results, form=form, tags=tags)
 
 # Route for searching parts
 @app.route("/search", methods=['GET', 'POST'])
@@ -135,6 +146,7 @@ def search():
 
     # Get the 'brand' query parameter
     brand = request.args.get('brand', type=int)
+    tag = request.args.get('tag', type=int)
 
     # Set the initial value of the 'partbrand' field based on the 'brand' parameter
 
@@ -165,6 +177,10 @@ def search():
     elif brand is not None:
         form.partbrand.data = brand
         results = models.Part.query.filter(models.Part.brands.any(id=brand)).all()
+
+    elif tag is not None:
+        form.tag.data = tag
+        results = models.Part.query.filter(models.Part.tags.any(id=tag)).all()
 
     return render_template("search.html", form=form, results=results)
 

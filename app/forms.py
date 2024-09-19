@@ -27,3 +27,7 @@ class Add_Part(FlaskForm):
 
 class Search_Brand(FlaskForm):
     brand = SelectField('brand', coerce=int)
+
+
+class Search_Tag(FlaskForm):
+    tag = SelectField('tag', coerce=int)
