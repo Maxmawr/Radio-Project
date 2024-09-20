@@ -48,6 +48,7 @@ import os
 from PIL import Image as PIL_Image, ImageOps as PIL_ImageOps
 from flask_login import LoginManager, login_user, logout_user, login_required
 from flask_bcrypt import Bcrypt
+import numpy as np
 
 
 # Configuration for file uploads and caching
@@ -104,9 +105,17 @@ def limit_url_length():
 def home():
     return render_template("home.html")
 
+def generate_random_image(image_path):
+    width, height = 200, 200
+    color = tuple(random.randint(0, 255) for _ in range(3))  # Random RGB color
+
+    # Create a random image
+    img = PIL_Image.new('RGB', (width, height), color)
+    img.save(image_path)
+
 @app.route('/add_test_data')
-def add_test_data(num_records=1):
-    with app.app_context():  # Ensure you have the app context
+def add_test_data(num_records=1000):
+    with app.app_context():
         brands = Brand.query.all()
         types = Type.query.all()
 
@@ -130,14 +139,23 @@ def add_test_data(num_records=1):
                     db.session.commit()
                     new_part.tags.append(new_tag)
                 else:
-                    new_part.tags.append(tag)
+                    # Check if the tag is already associated with the part
+                    if tag not in new_part.tags:
+                        new_part.tags.append(tag)
 
             # Dummy image handling
             dummy_image_name = f"{fake.uuid4()}.jpg"
+            image_path = os.path.join(UPLOAD_FOLDER, dummy_image_name)
+
+            # Generate a random image
+            generate_random_image(image_path)
+
             new_image = Image(name=dummy_image_name)
+            new_image.part_id = new_part.id
 
             db.session.add(new_part)
-            db.session.commit()
+            db.session.commit()  # Commit the part first to get an ID for the image
+            new_image.part_id = new_part.id  # Update the image with the part ID
             db.session.add(new_image)
             db.session.commit()
 
@@ -181,7 +199,6 @@ def all_parts():
 
     if request.method == 'POST' and form.validate_on_submit():
         tag = form.tag.data
-        print(tag)
         return (redirect(url_for('search', tag=tag)))
     else:
         results = []
@@ -315,17 +332,19 @@ def add_part():
 @app.route("/thumbnail/<int:id>")
 @cache.cached(timeout=50)
 def thumbnail(id):
-    print(cache.get(f'thumbnail:{id}'))
     """This route delivers a scaled down thumbnail as a jpeg file"""
     image = models.Image.query.filter_by(part_id=id).first()
-    filename = os.path.join(UPLOAD_FOLDER, image.name)
-    # TODO: Deal with missing images
 
+    filename = os.path.join(UPLOAD_FOLDER, image.name)
+    
     full = PIL_Image.open(filename)
-    thumb = PIL_ImageOps.fit(full, (THUMB_SIZE, THUMB_SIZE), PIL_Image.LANCZOS)
+    
+    thumb = full.copy()
+    thumb.thumbnail((THUMB_SIZE, THUMB_SIZE), PIL_Image.LANCZOS)
 
     buf = io.BytesIO()
     thumb.save(buf, format='JPEG')
+    buf.seek(0)
 
     response = make_response(buf.getvalue())
     response.headers.set('Content-Type', 'image/jpeg')
