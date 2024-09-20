@@ -2,10 +2,17 @@
 {% block content %}
 
 <form id="brand-form" method="POST" enctype="multipart/form-data">
-    {{ form.csrf_token }}
-    <p>Select Brand: {{ form.brand }} <span style="color:red">{{ form.brand.errors }}</span></p>
-    <input type="submit" value="Submit">
+  {{ form.csrf_token }}
+  
+  <p>Select Brand: {{ form.brand }} 
+    {% if form_submitted and form.brand.errors %}
+      <div class="error">{{ form.brand.errors[0] }}</div>
+    {% endif %}
+  </p>
+  
+  <input type="submit" value="Submit">
 </form>
+
 
 <form id="hidden-form" method="POST" enctype="multipart/form-data">
   {{ form.csrf_token }}

@@ -1,7 +1,7 @@
 from wsgiref.validate import validator
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, SelectField, FileField, IntegerField
-from wtforms.validators import DataRequired, NumberRange
+from wtforms.validators import DataRequired, NumberRange, Length
 from flask_wtf.file import FileAllowed, FileRequired
 import app.models
 from datetime import datetime
@@ -9,12 +9,12 @@ from datetime import datetime
 
 class Search(FlaskForm):
     partbrand = SelectField('Brand', coerce=int)
-    search = TextAreaField('Name')
+    search = TextAreaField('Name', validators=[Length(max=100)])
     tag = SelectField('Tag', coerce=int)
 
 
 class Add_Part(FlaskForm):
-    name = StringField('name', validators=[DataRequired()])
+    name = StringField('name', validators=[DataRequired(), Length(max=100)])
     brand = SelectField('brand', validators=[DataRequired()], coerce=int)
     tags = TextAreaField('tags')
     sizenum = IntegerField('sizenum', validators=[NumberRange(min=0, message="Number must be non-negative")])

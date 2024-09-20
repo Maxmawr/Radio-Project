@@ -3,14 +3,27 @@
 
 <form method="POST" enctype="multipart/form-data">
   {{ form.csrf_token }}
-  {{ form.search.label}} <br>
-  {{ form.search }}<br>
+  {{ form.search.label }} <br>
+  {{ form.search }} 
+  {% if form_submitted and form.search.errors %}
+    <div class="error">{{ form.search.errors[0] }}</div>
+  {% endif %}<br>
+  
   {{ form.partbrand.label }}<br>
-  {{ form.partbrand }} {{ form.errors }} <br>
-  {{ form.tag.label}} <br>
-  {{ form.tag }}<br>
+  {{ form.partbrand }} 
+  {% if form_submitted and form.partbrand.errors %}
+    <div class="error">{{ form.partbrand.errors[0] }}</div>
+  {% endif %} <br>
+  
+  {{ form.tag.label }} <br>
+  {{ form.tag }} 
+  {% if form_submitted and form.tag.errors %}
+    <div class="error">{{ form.tag.errors[0] }}</div>
+  {% endif %}<br>
+  
   <input type="submit" value="Search">
-</form>    
+</form>
+
 
 {% if results %}
   <table>

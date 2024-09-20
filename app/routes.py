@@ -72,15 +72,20 @@ db.init_app(app)
 import app.models as models
 from app.forms import Search, Add_Part, Search_Brand, Search_Tag
 
-# Initialize login manager for user session management
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-# Initialize Bcrypt for password hashing
 bcrypt = Bcrypt(app)
 
-# Thumbnail size for image processing
 THUMB_SIZE = 160
+
+MAX_URL_LENGTH = 2048
+
+from app.models import Part, Brand, Type, Tag, Image
+from faker import Faker
+import random
+
+fake = Faker()
 
 # Error handler with 404 route
 @app.errorhandler(404)
@@ -88,10 +93,55 @@ def page_not_found(e):
     return render_template('404.html'), 404
 
 
+@app.before_request
+def limit_url_length():
+    if len(request.url) > MAX_URL_LENGTH:
+        return render_template('404.html'), 404
+
+
 # Route for the home page
 @app.route("/")
 def home():
     return render_template("home.html")
+
+@app.route('/add_test_data')
+def add_test_data(num_records=1):
+    with app.app_context():  # Ensure you have the app context
+        brands = Brand.query.all()
+        types = Type.query.all()
+
+        for _ in range(num_records):
+            new_part = Part()
+            new_part.name = fake.catch_phrase()
+            new_part.width = random.randint(1, 100)
+
+            selected_brand = random.choice(brands)
+            new_part.brands.append(selected_brand)
+
+            selected_type = random.choice(types)
+            new_part.type_id = selected_type.id
+
+            tag_names = [fake.word() for _ in range(random.randint(1, 5))]
+            for tag_name in tag_names:
+                tag = Tag.query.filter_by(name=tag_name).first()
+                if tag is None:
+                    new_tag = Tag(name=tag_name)
+                    db.session.add(new_tag)
+                    db.session.commit()
+                    new_part.tags.append(new_tag)
+                else:
+                    new_part.tags.append(tag)
+
+            # Dummy image handling
+            dummy_image_name = f"{fake.uuid4()}.jpg"
+            new_image = Image(name=dummy_image_name)
+
+            db.session.add(new_part)
+            db.session.commit()
+            db.session.add(new_image)
+            db.session.commit()
+
+        return f"{num_records} records added to the database."
 
 # Route for brands page
 @app.route("/brands", methods=['GET', 'POST'])
@@ -101,18 +151,24 @@ def brands():
     form.brand.choices = [(0, 'None')]
     form.brand.choices.extend((b.id, b.name) for b in brands)
 
-    if request.method == 'POST' and form.validate_on_submit():
-        brand = form.brand.data
-        return (redirect(url_for('search', brand=brand)))
-    else:
-        results = []
-    return render_template("brands.html", results=results, form=form, brands=brands)
+    form_submitted = False
+
+    if request.method == 'POST':
+        form_submitted = True
+        if form.validate_on_submit():
+            brand = form.brand.data
+            return redirect(url_for('search', brand=brand))
+    
+    results = []
+    return render_template("brands.html", results=results, form=form, brands=brands, form_submitted=form_submitted)
+
 
 # Route for showing all manufacturers
 @app.route("/manufacturers")
 def manufacturers():
     manufacturers = models.Manufacturer.query.all()
     return render_template("manufacturers.html", manufacturers=manufacturers)
+
 
 # Route for showing all parts
 @app.route("/all_parts", methods=['GET', 'POST'])
@@ -131,6 +187,7 @@ def all_parts():
         results = []
     return render_template("all_parts.html", all_parts=all_parts, results=results, form=form, tags=tags)
 
+
 # Route for searching parts
 @app.route("/search", methods=['GET', 'POST'])
 def search():
@@ -148,31 +205,33 @@ def search():
     brand = request.args.get('brand', type=int)
     tag = request.args.get('tag', type=int)
 
-    # Set the initial value of the 'partbrand' field based on the 'brand' parameter
-
     results = []
-    if request.method == 'POST' and form.validate_on_submit():
-        search_term = '%' + form.search.data.strip().lower() + '%'
-        partbrand_id = form.partbrand.data
-        tag_id = form.tag.data
+    form_submitted = False
 
-        # Start with a base query
-        query = models.Part.query
+    if request.method == 'POST':
+        form_submitted = True
+        if form.validate_on_submit():
+            search_term = '%' + form.search.data.strip().lower() + '%'
+            partbrand_id = form.partbrand.data
+            tag_id = form.tag.data
 
-        # Add name search condition
-        if search_term:
-            query = query.filter(func.lower(models.Part.name).like(search_term))
+            # Start with a base query
+            query = models.Part.query
 
-        # Add brand search condition if partbrand_id is provided
-        if partbrand_id:
-            query = query.filter(models.Part.brands.any(id=partbrand_id))
+            # Add name search condition
+            if search_term:
+                query = query.filter(func.lower(models.Part.name).like(search_term))
 
-        # Add tag search condition if tags are provided
-        if tag_id:
-            query = query.filter(models.Part.tags.any(id=tag_id))
+            # Add brand search condition if partbrand_id is provided
+            if partbrand_id:
+                query = query.filter(models.Part.brands.any(id=partbrand_id))
 
-        # Execute the query
-        results = query.all()
+            # Add tag search condition if tags are provided
+            if tag_id:
+                query = query.filter(models.Part.tags.any(id=tag_id))
+
+            # Execute the query
+            results = query.all()
 
     elif brand is not None:
         form.partbrand.data = brand
@@ -182,7 +241,8 @@ def search():
         form.tag.data = tag
         results = models.Part.query.filter(models.Part.tags.any(id=tag)).all()
 
-    return render_template("search.html", form=form, results=results)
+    return render_template("search.html", form=form, results=results, form_submitted=form_submitted)
+
 
 # Route for specific part page
 @app.route("/part/<int:id>")
@@ -190,6 +250,7 @@ def part(id):
     part = models.Part.query.filter_by(id=id).first_or_404()
     images = models.Image.query.filter_by(part_id=part.id).first()
     return render_template("part.html", part=part, images=images)
+
 
 # Route for the adding parts function
 @app.route('/add_part', methods=['GET', 'POST'])
@@ -203,28 +264,26 @@ def add_part():
     types = models.Type.query.all()
     form.type.choices = [(t.id, t.name) for t in types]
 
-    if request.method == 'GET':
-        return render_template('add_part.html', form=form, title="Add A Part")
-    else:
+    form_submitted = False
+
+    if request.method == 'POST':
+        form_submitted = True
         if form.validate_on_submit():
             selected_brand_id = form.brand.data
-            # Might cause crashes, check for valid data
             brand = models.Brand.query.filter_by(id=selected_brand_id).first()
-            # print(type(selected_brand_id))
 
             new_part = models.Part()
             new_image = models.Image()
 
-            # assigning new part's name
             new_part.name = form.name.data
 
-        # Handle image upload
-        if 'image' in request.files:
-            image_file = request.files['image']
-            if image_file.filename != '':
-                filename = secure_filename(image_file.filename)
-                image_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                new_image.name = filename  # Save filename to the database
+            # Handle image upload
+            if 'image' in request.files:
+                image_file = request.files['image']
+                if image_file.filename != '':
+                    filename = secure_filename(image_file.filename)
+                    image_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    new_image.name = filename  # Save filename to the database
 
             # Adding tags
             taglist = form.tags.data.split(",")
@@ -238,13 +297,8 @@ def add_part():
                     tag = models.Tag.query.filter_by(name=t).first()
                 new_part.tags.append(tag)
 
-            # Assigning new part's size
             new_part.width = form.sizenum.data
-
-            # Assigning new part's brand
             new_part.brands.append(brand)
-
-            # Assigning new part's type
             new_part.type_id = form.type.data
 
             db.session.add(new_part)
@@ -253,9 +307,9 @@ def add_part():
             db.session.add(new_image)
             db.session.commit()
             return redirect(url_for('part', id=new_part.id))
-        else:
-            # note the terrible logic, this has already been called once in this function - could the logic be tidied up?
-            return render_template('add_part.html', form=form, title="Add A Part")
+
+    return render_template('add_part.html', form=form, title="Add A Part", form_submitted=form_submitted)
+
 
 # Route for thumbnail generation and caching
 @app.route("/thumbnail/<int:id>")
@@ -276,6 +330,7 @@ def thumbnail(id):
     response = make_response(buf.getvalue())
     response.headers.set('Content-Type', 'image/jpeg')
     return response
+
 
 # Route for exporting as a csv
 @app.route("/export")
@@ -312,6 +367,7 @@ def login():
             return redirect(url_for("home"))
     return render_template("login.html")
 
+
 # Route for registering a new account
 @app.route('/register', methods=["GET", "POST"])
 def register():
@@ -333,6 +389,7 @@ def register():
 @login_manager.user_loader
 def loader_user(user_id):
     return models.Users.query.get(user_id)
+
 
 # Route for logging out
 @app.route("/logout")
