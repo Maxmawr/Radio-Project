@@ -1,7 +1,9 @@
 """
 Flask Application for Part Management and Image Handling
 
-This script defines a Flask web application that provides several routes for managing parts and brands, handling image uploads and transformations, and user authentication.
+This script defines a Flask web application that provides several routes for
+managing parts and brands, handling image uploads and transformations,
+and user authentication.
 
 Key Features:
 - Upload and process images (displayed as thumbnails and cached to disk).
@@ -45,13 +47,15 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from werkzeug.utils import secure_filename
 import os
-from PIL import Image as PIL_Image, ImageOps as PIL_ImageOps
+from PIL import Image as PIL_Image
 from flask_login import LoginManager, login_user, logout_user, login_required
 from flask_bcrypt import Bcrypt
-import numpy as np
+from faker import Faker
+import random
 
 
-# Configuration for file uploads and caching
+fake = Faker()
+
 UPLOAD_FOLDER = 'app/static/images'
 app.config['CACHE_TYPE'] = 'filesystem'
 app.config['CACHE_DIR'] = 'cache-directory'
@@ -61,10 +65,11 @@ cache.init_app(app)
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Setup SQLAlchemy
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 db = SQLAlchemy()
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, "radio.db")
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(
+    basedir, "radio.db")
 app.secret_key = 'correcthorsebatterystaple'
 WTF_CSRF_ENABLED = True
 WTF_CSRF_SECRET_KEY = 'sup3r_secr3t_passw3rd'
@@ -83,12 +88,8 @@ THUMB_SIZE = 160
 MAX_URL_LENGTH = 2048
 
 from app.models import Part, Brand, Type, Tag, Image
-from faker import Faker
-import random
 
-fake = Faker()
 
-# Error handler with 404 route
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
@@ -100,18 +101,18 @@ def limit_url_length():
         return render_template('404.html'), 404
 
 
-# Route for the home page
 @app.route("/")
 def home():
     return render_template("home.html")
 
+
 def generate_random_image(image_path):
     width, height = 200, 200
-    color = tuple(random.randint(0, 255) for _ in range(3))  # Random RGB color
+    color = tuple(random.randint(0, 255) for _ in range(3))
 
-    # Create a random image
     img = PIL_Image.new('RGB', (width, height), color)
     img.save(image_path)
+
 
 @app.route('/add_test_data')
 def add_test_data(num_records=1000):
@@ -139,27 +140,25 @@ def add_test_data(num_records=1000):
                     db.session.commit()
                     new_part.tags.append(new_tag)
                 else:
-                    # Check if the tag is already associated with the part
                     if tag not in new_part.tags:
                         new_part.tags.append(tag)
 
-            # Dummy image handling
             dummy_image_name = f"{fake.uuid4()}.jpg"
             image_path = os.path.join(UPLOAD_FOLDER, dummy_image_name)
 
-            # Generate a random image
             generate_random_image(image_path)
 
             new_image = Image(name=dummy_image_name)
             new_image.part_id = new_part.id
 
             db.session.add(new_part)
-            db.session.commit()  # Commit the part first to get an ID for the image
-            new_image.part_id = new_part.id  # Update the image with the part ID
+            db.session.commit()
+            new_image.part_id = new_part.id
             db.session.add(new_image)
             db.session.commit()
 
         return f"{num_records} records added to the database."
+
 
 # Route for brands page
 @app.route("/brands", methods=['GET', 'POST'])
@@ -176,9 +175,10 @@ def brands():
         if form.validate_on_submit():
             brand = form.brand.data
             return redirect(url_for('search', brand=brand))
-    
+
     results = []
-    return render_template("brands.html", results=results, form=form, brands=brands, form_submitted=form_submitted)
+    return render_template("brands.html", results=results, form=form,
+                           brands=brands, form_submitted=form_submitted)
 
 
 # Route for showing all manufacturers
@@ -202,7 +202,8 @@ def all_parts():
         return (redirect(url_for('search', tag=tag)))
     else:
         results = []
-    return render_template("all_parts.html", all_parts=all_parts, results=results, form=form, tags=tags)
+    return render_template("all_parts.html", all_parts=all_parts,
+                           results=results, form=form, tags=tags)
 
 
 # Route for searching parts
@@ -237,7 +238,8 @@ def search():
 
             # Add name search condition
             if search_term:
-                query = query.filter(func.lower(models.Part.name).like(search_term))
+                query = query.filter(func.lower(models.Part.name).like(
+                    search_term))
 
             # Add brand search condition if partbrand_id is provided
             if partbrand_id:
@@ -252,16 +254,17 @@ def search():
 
     elif brand is not None:
         form.partbrand.data = brand
-        results = models.Part.query.filter(models.Part.brands.any(id=brand)).all()
+        results = models.Part.query.filter(models.Part.brands.any(
+            id=brand)).all()
 
     elif tag is not None:
         form.tag.data = tag
         results = models.Part.query.filter(models.Part.tags.any(id=tag)).all()
 
-    return render_template("search.html", form=form, results=results, form_submitted=form_submitted)
+    return render_template("search.html", form=form, results=results,
+                           form_submitted=form_submitted)
 
 
-# Route for specific part page
 @app.route("/part/<int:id>")
 def part(id):
     part = models.Part.query.filter_by(id=id).first_or_404()
@@ -269,10 +272,13 @@ def part(id):
     return render_template("part.html", part=part, images=images)
 
 
-# Route for the adding parts function
 @app.route('/add_part', methods=['GET', 'POST'])
 @login_required
 def add_part():
+    """This route is for adding new parts to the database.
+    It takes each entry from the form and puts them together into a part that gets comitted.
+    Two commits are used because otherwise the image is not assigned to the part."""
+
     form = Add_Part()
 
     brands = models.Brand.query.all()
@@ -294,15 +300,14 @@ def add_part():
 
             new_part.name = form.name.data
 
-            # Handle image upload
             if 'image' in request.files:
                 image_file = request.files['image']
                 if image_file.filename != '':
                     filename = secure_filename(image_file.filename)
-                    image_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                    new_image.name = filename  # Save filename to the database
+                    image_file.save(os.path.join(app.config['UPLOAD_FOLDER'],
+                                                 filename))
+                    new_image.name = filename
 
-            # Adding tags
             taglist = form.tags.data.split(",")
             for t in taglist:
                 tag = models.Tag.query.filter_by(name=t).first()
@@ -325,20 +330,21 @@ def add_part():
             db.session.commit()
             return redirect(url_for('part', id=new_part.id))
 
-    return render_template('add_part.html', form=form, title="Add A Part", form_submitted=form_submitted)
+    return render_template('add_part.html', form=form, title="Add A Part",
+                           form_submitted=form_submitted)
 
 
-# Route for thumbnail generation and caching
 @app.route("/thumbnail/<int:id>")
 @cache.cached(timeout=50)
 def thumbnail(id):
-    """This route delivers a scaled down thumbnail as a jpeg file"""
+    """This route delivers a scaled down thumbnail as a jpeg file.
+    It checks if the thumnail has been generated, if not it creates the thumbnail and caches it to disk."""
     image = models.Image.query.filter_by(part_id=id).first()
 
     filename = os.path.join(UPLOAD_FOLDER, image.name)
-    
+
     full = PIL_Image.open(filename)
-    
+
     thumb = full.copy()
     thumb.thumbnail((THUMB_SIZE, THUMB_SIZE), PIL_Image.LANCZOS)
 
@@ -351,11 +357,9 @@ def thumbnail(id):
     return response
 
 
-# Route for exporting as a csv
 @app.route("/export")
+@login_required
 def export():
-    """Exports all the parts as a csv file"""
-    # TODO: This should only be admin
     # TODO: Export all fields
     allparts = models.Part.query.all()
 
@@ -372,30 +376,28 @@ def export():
     return response
 
 
-# Route for logging in
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         user = models.Users.query.filter_by(
             username=request.form.get("username")).first()
-        # Check if the password entered is the same as the user's password
         password = request.form.get("password")
         if bcrypt.check_password_hash(user.hashed_password, password):
-            # Use the login_user method to log in the user
             login_user(user)
             return redirect(url_for("home"))
     return render_template("login.html")
 
 
-# Route for registering a new account
 @app.route('/register', methods=["GET", "POST"])
 def register():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
 
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        new_user = models.Users(username=username, password=password, hashed_password=hashed_password)
+        hashed_password = bcrypt.generate_password_hash(
+            password).decode('utf-8')
+        new_user = models.Users(username=username, password=password,
+                                hashed_password=hashed_password)
 
         db.session.add(new_user)
         db.session.commit()
@@ -410,7 +412,6 @@ def loader_user(user_id):
     return models.Users.query.get(user_id)
 
 
-# Route for logging out
 @app.route("/logout")
 def logout():
     logout_user()

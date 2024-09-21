@@ -2,12 +2,14 @@ from app.routes import db
 from flask_login import UserMixin
 
 PartBrands = db.Table('PartBrands',
-    db.Column('part_id', db.Integer, db.ForeignKey('Part.id')),
-    db.Column('brand_id', db.Integer, db.ForeignKey('Brand.id')))
+                      db.Column('part_id', db.Integer,
+                                db.ForeignKey('Part.id')),
+                      db.Column('brand_id', db.Integer,
+                                db.ForeignKey('Brand.id')))
 
 PartTag = db.Table('PartTag',
-    db.Column('part_id', db.Integer, db.ForeignKey('Part.id')),
-    db.Column('tag_id', db.Integer, db.ForeignKey('Tag.id')))
+                   db.Column('part_id', db.Integer, db.ForeignKey('Part.id')),
+                   db.Column('tag_id', db.Integer, db.ForeignKey('Tag.id')))
 
 
 class Brand(db.Model):
@@ -20,7 +22,8 @@ class Brand(db.Model):
     logo = db.Column(db.Integer())
 
     manufacturer = db.relationship("Manufacturer", back_populates="brands")
-    parts = db.relationship("Part", secondary="PartBrands", back_populates="brands")
+    parts = db.relationship("Part", secondary="PartBrands",
+                            back_populates="brands")
 
     def __repr__(self):
         return self.name
@@ -57,7 +60,8 @@ class Part(db.Model):
     notes = db.Column(db.Text())
     vrp_link = db.Column(db.Text())
 
-    brands = db.relationship("Brand", secondary="PartBrands", back_populates="parts")
+    brands = db.relationship("Brand", secondary="PartBrands",
+                             back_populates="parts")
     tags = db.relationship("Tag", secondary="PartTag", back_populates="parts")
     type = db.relationship("Type", backref="parts")
 
@@ -93,8 +97,6 @@ class Tag(db.Model):
 class Users(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(250), unique=True,
-                         nullable=False)
-    password = db.Column(db.String(250),
                          nullable=False)
     hashed_password = db.Column(db.String())
 
