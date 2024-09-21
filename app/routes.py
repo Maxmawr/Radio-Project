@@ -181,14 +181,12 @@ def brands():
                            brands=brands, form_submitted=form_submitted)
 
 
-# Route for showing all manufacturers
 @app.route("/manufacturers")
 def manufacturers():
     manufacturers = models.Manufacturer.query.all()
     return render_template("manufacturers.html", manufacturers=manufacturers)
 
 
-# Route for showing all parts
 @app.route("/all_parts", methods=['GET', 'POST'])
 def all_parts():
     all_parts = models.Part.query.all()
@@ -206,9 +204,11 @@ def all_parts():
                            results=results, form=form, tags=tags)
 
 
-# Route for searching parts
 @app.route("/search", methods=['GET', 'POST'])
 def search():
+    """This route allows the user to search by filling out a selection of entries on the form.
+    As of now, they can search by name, size, and brand.
+    Any of the fields can be left blank, and they are not considered by the search."""
     form = Search()
     brands = models.Brand.query.all()
     tags = models.Tag.query.all()
@@ -219,7 +219,6 @@ def search():
     brand_choices.extend((b.id, b.name) for b in brands)
     form.partbrand.choices = brand_choices
 
-    # Get the 'brand' query parameter
     brand = request.args.get('brand', type=int)
     tag = request.args.get('tag', type=int)
 
@@ -233,23 +232,18 @@ def search():
             partbrand_id = form.partbrand.data
             tag_id = form.tag.data
 
-            # Start with a base query
             query = models.Part.query
 
-            # Add name search condition
             if search_term:
                 query = query.filter(func.lower(models.Part.name).like(
                     search_term))
 
-            # Add brand search condition if partbrand_id is provided
             if partbrand_id:
                 query = query.filter(models.Part.brands.any(id=partbrand_id))
 
-            # Add tag search condition if tags are provided
             if tag_id:
                 query = query.filter(models.Part.tags.any(id=tag_id))
 
-            # Execute the query
             results = query.all()
 
     elif brand is not None:
@@ -361,12 +355,12 @@ def thumbnail(id):
 @login_required
 def export():
     # TODO: Export all fields
-    allparts = models.Part.query.all()
+    all_parts = models.Part.query.all()
 
     buf = io.StringIO()
     w = csv.writer(buf)
     w.writerow(["name"])
-    for part in allparts:
+    for part in all_parts:
         row = [part.name]
         w.writerow(row)
     response = make_response(buf.getvalue())

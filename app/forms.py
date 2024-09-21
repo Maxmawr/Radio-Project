@@ -16,8 +16,8 @@ class Search(FlaskForm):
 class Add_Part(FlaskForm):
     name = StringField('name', validators=[DataRequired(), Length(max=100)])
     brand = SelectField('brand', validators=[DataRequired()], coerce=int)
-    tags = TextAreaField('tags')
-    sizenum = IntegerField('sizenum', validators=[NumberRange(min=0, message="Number must be non-negative")])
+    tags = TextAreaField('tags', validators=[Length(max=100)])
+    sizenum = IntegerField('sizenum', validators=[NumberRange(min=0, message="Number must be non-negative", max=400)])
     type = SelectField('type', validators=[DataRequired()], coerce=int)
     image = FileField('Image', validators=[
         FileRequired(),
