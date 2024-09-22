@@ -115,6 +115,7 @@ def generate_random_image(image_path):
 
 
 @app.route('/add_test_data')
+@login_required
 def add_test_data(num_records=1000):
     with app.app_context():
         brands = Brand.query.all()
