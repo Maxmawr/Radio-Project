@@ -3,8 +3,6 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, SelectField, FileField, IntegerField
 from wtforms.validators import DataRequired, NumberRange, Length
 from flask_wtf.file import FileAllowed, FileRequired
-import app.models
-from datetime import datetime
 
 
 class Search(FlaskForm):

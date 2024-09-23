@@ -45,6 +45,7 @@ from flask import make_response, render_template, request, redirect, url_for
 from flask_caching import Cache
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
+from sqlalchemy.orm import selectinload
 from werkzeug.utils import secure_filename
 import os
 from PIL import Image as PIL_Image
@@ -190,7 +191,14 @@ def manufacturers():
 
 @app.route("/all_parts", methods=['GET', 'POST'])
 def all_parts():
-    all_parts = models.Part.query.all()
+    all_parts = (
+                models.Part.query.options(
+                    selectinload(models.Part.brands),
+                    selectinload(models.Part.tags),
+                    selectinload(models.Part.type)
+                )
+                .all()
+                )
     form = Search_Tag()
     tags = models.Tag.query.all()
     form.tag.choices = [(0, 'None')]
