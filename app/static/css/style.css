@@ -23,6 +23,10 @@ main{
     border-radius: 25px;
 }
 
+.nav{
+    text-align: center;
+}
+
 h1{
     text-align: center;
 }
@@ -146,6 +150,8 @@ tr:nth-child(odd) {
     box-shadow: -3px 3px 8px silver;
 }
 
-.nav{
-    text-align: center;
+/* Forms */
+
+.error{
+    color:red
 }

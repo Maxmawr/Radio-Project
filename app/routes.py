@@ -190,6 +190,7 @@ def manufacturers():
 
 
 @app.route("/all_parts", methods=['GET', 'POST'])
+@cache.cached(timeout=50)
 def all_parts():
     all_parts = (
                 models.Part.query.options(
