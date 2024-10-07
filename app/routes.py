@@ -36,6 +36,7 @@ Required `pip` packages:
 - SQLAlchemy
 - Werkzeug
 - Pillow
+- Faker
 """
 
 import io
