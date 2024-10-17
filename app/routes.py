@@ -223,12 +223,19 @@ def search():
     form = Search()
     brands = models.Brand.query.all()
     tags = models.Tag.query.all()
+    types = models.Type.query.all()
+
     tag_choices = [(0, 'None')]
     tag_choices.extend((t.id, t.name) for t in tags)
     form.tag.choices = tag_choices
+
     brand_choices = [(0, 'None')]
     brand_choices.extend((b.id, b.name) for b in brands)
     form.partbrand.choices = brand_choices
+
+    type_choices = [(0, 'None')]
+    type_choices.extend((t.id, t.name) for t in types)
+    form.type.choices = type_choices
 
     brand = request.args.get('brand', type=int)
     tag = request.args.get('tag', type=int)
@@ -242,6 +249,9 @@ def search():
             search_term = '%' + form.search.data.strip().lower() + '%'
             partbrand_id = form.partbrand.data
             tag_id = form.tag.data
+            type_id = form.type.data
+            width = form.width.data
+            height = form.height.data
 
             query = models.Part.query
 
@@ -254,6 +264,19 @@ def search():
 
             if tag_id:
                 query = query.filter(models.Part.tags.any(id=tag_id))
+
+            if type_id:
+                query = query.filter(models.Part.type.has(id=type_id))
+
+            if width is not None:
+                min_width = width * 0.9
+                max_width = width * 1.1
+                query = query.filter(models.Part.width.between(min_width, max_width))
+
+            if height is not None:
+                min_height = height * 0.9
+                max_height = height * 1.1
+                query = query.filter(models.Part.height.between(min_height, max_height))
 
             results = query.all()
 
