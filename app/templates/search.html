@@ -20,6 +20,24 @@
   {% if form_submitted and form.tag.errors %}
     <div class="error">{{ form.tag.errors[0] }}</div>
   {% endif %}<br>
+
+  {{ form.width.label }} <br>
+  {{ form.width }} 
+  {% if form_submitted and form.width.errors %}
+    <div class="error">{{ form.width.errors[0] }}</div>
+  {% endif %}<br>
+
+  {{ form.height.label }} <br>
+  {{ form.height }} 
+  {% if form_submitted and form.height.errors %}
+    <div class="error">{{ form.height.errors[0] }}</div>
+  {% endif %}<br>
+
+  {{ form.type.label }} <br>
+  {{ form.type }} 
+  {% if form_submitted and form.type.errors %}
+    <div class="error">{{ form.type.errors[0] }}</div>
+  {% endif %}<br>
   
   <input type="submit" value="Search">
 </form>
