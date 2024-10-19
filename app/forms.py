@@ -19,8 +19,11 @@ class Add_Part(FlaskForm):
     name = StringField('name', validators=[DataRequired(), Length(max=100)])
     brand = SelectField('brand', validators=[DataRequired()], coerce=int)
     tags = TextAreaField('tags', validators=[Length(max=100)])
-    sizenum = IntegerField(
-        'sizenum', validators=[NumberRange(
+    width = IntegerField(
+        'width', validators=[NumberRange(
+            min=0, max=400, message="Number must be less than or equal to 400")])
+    height = IntegerField(
+        'height', validators=[NumberRange(
             min=0, max=400, message="Number must be less than or equal to 400")])
     type = SelectField('type', validators=[DataRequired()], coerce=int)
     image = FileField('Image', validators=[

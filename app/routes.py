@@ -347,7 +347,8 @@ def add_part():
                     tag = models.Tag.query.filter_by(name=t).first()
                 new_part.tags.append(tag)
 
-            new_part.width = form.sizenum.data
+            new_part.width = form.width.data
+            new_part.height = form.height.data
             new_part.brands.append(brand)
             new_part.type_id = form.type.data
 

@@ -21,12 +21,19 @@
     {% endif %}
   </p>
   
-  <p>Size: {{ form.sizenum }} mm 
-    {% if form_submitted and form.sizenum.errors %}
-      <div class="error">{{ form.sizenum.errors[0] }}</div>
+  <p>Width: {{ form.width }} mm 
+    {% if form_submitted and form.width.errors %}
+      <div class="error">{{ form.width.errors[0] }}</div>
     {% endif %}
   </p>
-  
+
+  <p>Height: {{ form.height }} mm 
+    {% if form_submitted and form.height.errors %}
+      <div class="error">{{ form.height.errors[0] }}</div>
+    {% endif %}
+  </p>
+
+
   <p>Type: {{ form.type }} 
     {% if form_submitted and form.type.errors %}
       <div class="error">{{ form.type.errors[0] }}</div>
