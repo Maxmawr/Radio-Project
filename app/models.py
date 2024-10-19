@@ -59,6 +59,7 @@ class Part(db.Model):
     height = db.Column(db.Integer())
     notes = db.Column(db.Text())
     vrp_link = db.Column(db.Text())
+    box_number = db.Column(db.Integer())
 
     brands = db.relationship("Brand", secondary="PartBrands",
                              back_populates="parts")

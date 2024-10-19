@@ -6,43 +6,52 @@
   <input type="hidden" name="tag" id="selected-tag">
 </form>
 
-  <h1>All Parts</h1>
-  <table>
-    <thead>
-      <tr>
+<h1>All Parts</h1>
+<table>
+  <thead>
+    <tr>
       <th>Image</th>
       <th>Name</th>
       <th>Size</th>
       <th>Brand</th>
       <th>Type</th>
       <th>Tags</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for part in all_parts %}
-      <tr>
-        <td><a href="/part/{{part.id}}"><img class="thumbnail" src="/thumbnail/{{part.id}}"/></a></td>
-        <td><a href="/part/{{part.id}}">{{part.name}}</a></td>
-        <td>
-          {% if part.width %}
-            Width - {{part.width}} mm<br>
-              {% if part.height %}
-                Height -  {{part.height}} mm
-              {% endif %}
-          {% else %}
-            Not Specified
-          {% endif %}</p></td>
-        <td>{{part.brands | join(", ")}}</td>
-        <td>{{part.type}}</td>
-        <td class = tag-box>
-            {% for t in part.tags %}
-                <a class="tag" href="/search?tag={{ t.id }}">{{t}}</a>
-            {% endfor %}
-        </td>
-      {% endfor %}
-      </tr>
-    </tbody>
-  </table>
+      <th>Box</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for part in all_parts %}
+    <tr>
+      <td><a href="/part/{{part.id}}"><img class="thumbnail" src="/thumbnail/{{part.id}}"/></a></td>
+      <td><a href="/part/{{part.id}}">{{part.name}}</a></td>
+      <td>
+        {% if part.width %}
+          Width - {{part.width}} mm<br>
+          {% if part.height %}
+            Height - {{part.height}} mm
+          {% endif %}
+        {% else %}
+          Not Specified
+        {% endif %}
+      </td>
+      <td>{{part.brands | join(", ")}}</td>
+      <td>{{part.type}}</td>
+      <td class="tag-box">
+        {% for t in part.tags %}
+          <a class="tag" href="/search?tag={{ t.id }}">{{t}}</a>
+        {% endfor %}
+      </td>
+      <td>
+        {% if part.box_number %}
+          {{part.box_number}}
+        {% else %}
+          Not Specified
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 
 <script>
   function selectTag(tagAlias) {
