@@ -425,7 +425,7 @@ def register():
 
         hashed_password = bcrypt.generate_password_hash(
             password).decode('utf-8')
-        new_user = models.Users(username=username, password=password,
+        new_user = models.Users(username=username,
                                 hashed_password=hashed_password)
 
         db.session.add(new_user)
