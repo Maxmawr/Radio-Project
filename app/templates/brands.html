@@ -13,29 +13,14 @@
   <input type="submit" value="Submit">
 </form>
 
-
-<form id="hidden-form" method="POST" enctype="multipart/form-data">
-  {{ form.csrf_token }}
-  <input type="hidden" name="brand" id="selected-brand">
-</form>
-
 <h2>Or select from one of NZ's major brands:</h2>
 <div class="brands-grid">
   {% for brand in brands %}
     {% if brand.logo %}
-    <div class="brands-image" onclick="selectBrand('{{ brand.id }}')">
-      <img src="\static\images\logos\{{ brand.alias }}.jpg" alt="{{ brand.name }}">
+    <div class="brands-image">
+      <a href="/search?brand={{ brand.id }}"><img src="\static\images\logos\{{ brand.alias }}.jpg" alt="{{ brand.name }}"></a>
     </div>
     {% endif %}
   {% endfor %}
 </div>
-
-
-<script>
-  function selectBrand(brandAlias) {
-    document.getElementById('selected-brand').value = brandAlias;
-    document.getElementById('hidden-form').submit();
-  }
-</script>
-
 {% endblock %}
