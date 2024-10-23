@@ -167,7 +167,7 @@ def add_test_data(num_records=1000):
 @app.route("/brands", methods=['GET', 'POST'])
 def brands():
     form = Search_Brand()
-    brands = models.Brand.query.all()
+    brands = models.Brand.query.order_by(func.lower(models.Brand.name)).all()
     form.brand.choices = [(0, 'None')]
     form.brand.choices.extend((b.id, b.name) for b in brands)
 
@@ -221,9 +221,9 @@ def search():
     As of now, they can search by name, size, and brand.
     Any of the fields can be left blank, and they are not considered by the search."""
     form = Search()
-    brands = models.Brand.query.all()
-    tags = models.Tag.query.all()
-    types = models.Type.query.all()
+    brands = models.Brand.query.order_by(func.lower(models.Brand.name)).all()
+    tags = models.Tag.query.order_by(func.lower(models.Tag.name)).all()
+    types = models.Type.query.order_by(func.lower(models.Type.name)).all()
 
     tag_choices = [(0, 'None')]
     tag_choices.extend((t.id, t.name) for t in tags)
