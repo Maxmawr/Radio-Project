@@ -217,9 +217,11 @@ def all_parts():
 
 @app.route("/search", methods=['GET', 'POST'])
 def search():
-    """This route allows the user to search by filling out a selection of entries on the form.
+    """This route allows the user to search by filling out a selection
+    of entries on the form.
     As of now, they can search by name, size, and brand.
-    Any of the fields can be left blank, and they are not considered by the search."""
+    Any of the fields can be left blank, and they are not
+    considered by the search."""
     form = Search()
     brands = models.Brand.query.order_by(func.lower(models.Brand.name)).all()
     tags = models.Tag.query.order_by(func.lower(models.Tag.name)).all()
@@ -271,12 +273,14 @@ def search():
             if width is not None:
                 min_width = width * 0.9
                 max_width = width * 1.1
-                query = query.filter(models.Part.width.between(min_width, max_width))
+                query = query.filter(models.Part.width.between(
+                    min_width, max_width))
 
             if height is not None:
                 min_height = height * 0.9
                 max_height = height * 1.1
-                query = query.filter(models.Part.height.between(min_height, max_height))
+                query = query.filter(models.Part.height.between(
+                    min_height, max_height))
 
             results = query.all()
 
@@ -304,8 +308,10 @@ def part(id):
 @login_required
 def add_part():
     """This route is for adding new parts to the database.
-    It takes each entry from the form and puts them together into a part that gets comitted.
-    Two commits are used because otherwise the image is not assigned to the part."""
+    It takes each entry from the form and puts them together
+    into a part that gets comitted.
+    Two commits are used because otherwise the image is not
+    assigned to the part."""
 
     form = Add_Part()
 
@@ -341,7 +347,7 @@ def add_part():
                 tag = models.Tag.query.filter_by(name=t).first()
                 if tag is None:
                     new_tag = models.Tag()
-                    new_tag.name = t
+                    new_tag.name = t.strip()
                     db.session.add(new_tag)
                     db.session.commit()
                     tag = models.Tag.query.filter_by(name=t).first()
@@ -367,7 +373,8 @@ def add_part():
 @cache.cached(timeout=50)
 def thumbnail(id):
     """This route delivers a scaled down thumbnail as a jpeg file.
-    It checks if the thumnail has been generated, if not it creates the thumbnail and caches it to disk."""
+    It checks if the thumnail has been generated, if not it creates the
+    thumbnail and caches it to disk."""
     image = models.Image.query.filter_by(part_id=id).first()
 
     filename = os.path.join(UPLOAD_FOLDER, image.name)
