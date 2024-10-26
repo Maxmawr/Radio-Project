@@ -473,46 +473,47 @@ def delete_confirm(id):
     return redirect(url_for("all_parts"))
 
 
-@app.route('/edit/<int:id>', methods=['GET', 'POST'])
-def edit_part(id):
-    part = models.Part.query.filter_by(id=id).first_or_404()
-    form = Edit(request.form, obj=part)
+# @app.route('/edit/<int:id>', methods=['GET', 'POST'])
+# def edit_part(id):
+#     part = models.Part.query.filter_by(id=id).first_or_404()
+#     form = Edit(request.form, obj=part)
 
-    # Fetch all brands and types
-    brands = models.Brand.query.all()
-    form.brand.choices = [(b.id, b.name) for b in brands]
+#     # Fetch all brands and types
+#     brands = models.Brand.query.all()
+#     form.brand.choices = [(b.id, b.name) for b in brands]
 
-    types = models.Type.query.all()
-    form.type.choices = [(t.id, t.name) for t in types]
+#     types = models.Type.query.all()
+#     form.type.choices = [(t.id, t.name) for t in types]
 
-    # Set the current brand and type as the selected options
-    form.brand.data = part.brands[0].id if part.brands else None
-    form.type.data = part.type_id
+#     # Set the current brand and type as the selected options
+#     form.brand.data = part.brands[0].id if part.brands else None
+#     form.type.data = part.type_id
 
-    # Set tags as a comma-separated string
-    form.tags.data = ', '.join(tag.name for tag in part.tags) if part.tags else ''
+#     # Set tags as a comma-separated string
+#     form.tags.data = ', '.join(tag.name for tag in part.tags) if part.tags else ''
 
-    if form.validate_on_submit():
-        form.populate_obj(part)
+#     if form.validate_on_submit():
+#         # Populate the part object excluding tags
+#         form.populate_obj(part)  # This populates all fields except for tags
 
-        # Handle image uploads
-        if form.images.data:
-            for file in form.images.data:
-                if file:
-                    filename = secure_filename(file.filename)
-                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))  # Save the file to your desired folder
+#         # Process tags input separately
+#         if form.tags.data:
+#             tags_list = [tag.strip() for tag in form.tags.data.split(',')]
+#             part.tags = []  # Clear existing tags
 
-                    # Create a new Image instance and associate it with the part
-                    new_image = models.Image(name=filename, part=part)
-                    db.session.add(new_image)
+#             for tag_name in tags_list:
+#                 # Check if the tag already exists
+#                 tag = models.Tag.query.filter_by(name=tag_name).first()
+#                 if tag:
+#                     part.tags.append(tag)  # Add existing tag
+#                 else:
+#                     new_tag = models.Tag(name=tag_name)  # Create a new tag
+#                     part.tags.append(new_tag)  # Add new tag
 
-        db.session.commit()
-        return redirect(url_for('part', id=id))
+#         db.session.commit()  # Commit all changes to the database
+#         return redirect(url_for('part', id=id))
 
-    return render_template('edit.html', form=form, part=part)
-
-
-
+#     return render_template('edit.html', form=form, part=part)
 
 
 @login_manager.user_loader
