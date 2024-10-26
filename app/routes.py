@@ -78,7 +78,7 @@ WTF_CSRF_SECRET_KEY = 'sup3r_secr3t_passw3rd'
 db.init_app(app)
 
 import app.models as models
-from app.forms import Search, Add_Part, Search_Brand, Search_Tag
+from app.forms import Search, Add_Part, Search_Brand, Search_Tag, Edit
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -443,7 +443,7 @@ def register():
     return render_template("sign_up.html")
 
 
-@app.route("/delete/<int:id>", methods=['GET', 'POST'])
+@app.route("/delete/<int:id>")
 def delete(id):
     part = models.Part.query.filter_by(id=id).first_or_404()
     return render_template("delete.html", part=part)
@@ -456,6 +456,25 @@ def delete_confirm(id):
     db.session.commit()
     print("deleted", part)
     return redirect(url_for("all_parts"))
+
+
+@app.route('/edit/<int:id>', methods=['GET', 'POST'])
+def edit_part(id):
+    part = models.Part.query.filter_by(id=id).first_or_404()
+    form = Edit(request.form, obj=part)
+
+    brands = models.Brand.query.all()
+    form.brand.choices = [(b.id, b.name) for b in brands]
+
+    types = models.Type.query.all()
+    form.type.choices = [(t.id, t.name) for t in types]
+
+    if form.validate_on_submit():
+        form.populate_obj(part)
+        db.session.commit()
+        return redirect(url_for('part', id=id))
+    return render_template('edit.html', **locals())
+
 
 @login_manager.user_loader
 def loader_user(user_id):

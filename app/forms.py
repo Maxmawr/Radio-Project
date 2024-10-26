@@ -38,3 +38,20 @@ class Search_Brand(FlaskForm):
 
 class Search_Tag(FlaskForm):
     tag = SelectField('tag', coerce=int)
+
+
+class Edit(FlaskForm):
+    name = StringField('name', validators=[DataRequired(), Length(max=100)])
+    brand = SelectField('brand', validators=[DataRequired()], coerce=int)
+    tags = TextAreaField('tags', validators=[Length(max=100)])
+    width = IntegerField(
+        'width', validators=[NumberRange(
+            min=0, max=400, message="Number must be less than or equal to 400")])
+    height = IntegerField(
+        'height', validators=[NumberRange(
+            min=0, max=400, message="Number must be less than or equal to 400")])
+    type = SelectField('type', validators=[DataRequired()], coerce=int)
+    image = FileField('Image', validators=[
+        FileRequired(),
+        FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Images only!')
+    ])

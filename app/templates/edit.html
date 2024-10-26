@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block content %}
+<form method="POST" enctype="multipart/form-data">
+  {{ form.csrf_token }}
+  
+  <p>Name: {{ form.name }} 
+    {% if form_submitted and form.name.errors %}
+      <div class="error">{{ form.name.errors[0] }}</div>
+    {% endif %}
+  </p>
+  
+  <p>Brand: {{ form.brand }} 
+    {% if form_submitted and form.brand.errors %}
+      <div class="error">{{ form.brand.errors[0] }}</div>
+    {% endif %}
+  </p>
+  
+  <p>Tags: {{ form.tags }} 
+    {% if form_submitted and form.tags.errors %}
+      <div class="error">{{ form.tags.errors[0] }}</div>
+    {% endif %}
+  </p>
+  
+  <p>Width: {{ form.width }} mm 
+    {% if form_submitted and form.width.errors %}
+      <div class="error">{{ form.width.errors[0] }}</div>
+    {% endif %}
+  </p>
+
+  <p>Height: {{ form.height }} mm 
+    {% if form_submitted and form.height.errors %}
+      <div class="error">{{ form.height.errors[0] }}</div>
+    {% endif %}
+  </p>
+
+
+  <p>Type: {{ form.type }} 
+    {% if form_submitted and form.type.errors %}
+      <div class="error">{{ form.type.errors[0] }}</div>
+    {% endif %}
+  </p>
+  
+  <p>Image: {{ form.image }} 
+    {% if form_submitted and form.image.errors %}
+      <div class="error">{{ form.image.errors[0] }}</div>
+    {% endif %}
+  </p>
+  
+  <input type="submit" value="Submit">
+</form>
+{% endblock %}
