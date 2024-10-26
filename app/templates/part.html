@@ -9,7 +9,11 @@
   Not Specified
 {% endif %}
 - Known Brands: {{part.brands | join(", ")}} - {{part.type}}<br>
-  <img src="/static/images/{{images.name}}" class="part-image"><br>
+
+  {% for i in part.images %}
+  <img src="/static/images/{{i.name}}" class="part-image"><br>
+  {% endfor %}
+
   {{part.tags | join(", ")}}<br>
 
   <a href = "/edit/{{part.id}}">Edit</a><br>

@@ -40,8 +40,8 @@
     {% endif %}
   </p>
   
-  <p>Image: {{ form.image }} 
-    {% if form_submitted and form.image.errors %}
+  <p>Image: {{ form.images(size=20, multiple=True) }}
+    {% if form_submitted and form.images.errors %}
       <div class="error">{{ form.image.errors[0] }}</div>
     {% endif %}
   </p>

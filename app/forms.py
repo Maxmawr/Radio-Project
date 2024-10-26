@@ -26,7 +26,7 @@ class Add_Part(FlaskForm):
         'height', validators=[NumberRange(
             min=0, max=400, message="Number must be less than or equal to 400")])
     type = SelectField('type', validators=[DataRequired()], coerce=int)
-    image = FileField('Image', validators=[
+    images = FileField('Image', validators=[
         FileRequired(),
         FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Images only!')
     ])
@@ -51,7 +51,7 @@ class Edit(FlaskForm):
         'height', validators=[NumberRange(
             min=0, max=400, message="Number must be less than or equal to 400")])
     type = SelectField('type', validators=[DataRequired()], coerce=int)
-    image = FileField('Image', validators=[
+    images = FileField('Image', validators=[
         FileRequired(),
         FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Images only!')
     ])

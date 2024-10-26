@@ -45,7 +45,7 @@ from app import app
 from flask import make_response, render_template, request, redirect, url_for
 from flask_caching import Cache
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func
+from sqlalchemy import case, func
 from sqlalchemy.orm import selectinload
 from werkzeug.utils import secure_filename
 import os
@@ -191,7 +191,7 @@ def manufacturers():
 
 
 @app.route("/all_parts", methods=['GET', 'POST'])
-@cache.cached(timeout=50)
+# @cache.cached(timeout=50)
 def all_parts():
     all_parts = (
                 models.Part.query.options(
@@ -227,16 +227,13 @@ def search():
     tags = models.Tag.query.order_by(func.lower(models.Tag.name)).all()
     types = models.Type.query.order_by(func.lower(models.Type.name)).all()
 
-    tag_choices = [(0, 'None')]
-    tag_choices.extend((t.id, t.name) for t in tags)
+    tag_choices = [(0, 'None')] + [(t.id, t.name) for t in tags]
     form.tag.choices = tag_choices
 
-    brand_choices = [(0, 'None')]
-    brand_choices.extend((b.id, b.name) for b in brands)
+    brand_choices = [(0, 'None')] + [(b.id, b.name) for b in brands]
     form.partbrand.choices = brand_choices
 
-    type_choices = [(0, 'None')]
-    type_choices.extend((t.id, t.name) for t in types)
+    type_choices = [(0, 'None')] + [(t.id, t.name) for t in types]
     form.type.choices = type_choices
 
     brand = request.args.get('brand', type=int)
@@ -257,9 +254,15 @@ def search():
 
             query = models.Part.query
 
+            # Building the filters
             if search_term:
-                query = query.filter(func.lower(models.Part.name).like(
-                    search_term))
+                query = query.filter(
+                    func.lower(models.Part.name).like(search_term) |
+                    models.Part.brands.any(func.lower(
+                        models.Brand.name).like(search_term)) |
+                    models.Part.tags.any(func.lower(
+                        models.Tag.name).like(search_term))
+                )
 
             if partbrand_id:
                 query = query.filter(models.Part.brands.any(id=partbrand_id))
@@ -282,12 +285,25 @@ def search():
                 query = query.filter(models.Part.height.between(
                     min_height, max_height))
 
+            # Adding the ordering to prioritize name matches
+            query = query.order_by(
+                case(
+                    (func.lower(models.Part.name).like(
+                        search_term), 0),  # Name match comes first
+                    (models.Part.brands.any(func.lower(models.Brand.name).like(
+                        search_term)), 1),  # Brand matches second
+                    (models.Part.tags.any(func.lower(models.Tag.name).like(
+                        search_term)), 2),  # Tag matches third
+                    (True, 3)  # All other results come afterward
+                )
+            )
+
             results = query.all()
 
     elif brand is not None:
         form.partbrand.data = brand
-        results = models.Part.query.filter(models.Part.brands.any(
-            id=brand)).all()
+        results = models.Part.query.filter(
+            models.Part.brands.any(id=brand)).all()
 
     elif tag is not None:
         form.tag.data = tag
@@ -295,6 +311,7 @@ def search():
 
     return render_template("search.html", form=form, results=results,
                            form_submitted=form_submitted)
+
 
 
 @app.route("/part/<int:id>")
@@ -330,27 +347,28 @@ def add_part():
             brand = models.Brand.query.filter_by(id=selected_brand_id).first()
 
             new_part = models.Part()
-            new_image = models.Image()
-
             new_part.name = form.name.data
 
-            if 'image' in request.files:
-                image_file = request.files['image']
-                if image_file.filename != '':
-                    filename = secure_filename(image_file.filename)
-                    image_file.save(os.path.join(app.config['UPLOAD_FOLDER'],
-                                                 filename))
-                    new_image.name = filename
+            # Process multiple images
+            if 'images' in request.files:
+                image_files = request.files.getlist('images')  # Get all uploaded files
+                for image_file in image_files:
+                    if image_file and image_file.filename != '':
+                        filename = secure_filename(image_file.filename)
+                        image_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+                        # Create a new Image instance
+                        new_image = models.Image(name=filename, part=new_part)  # Link the image to the new part
+                        db.session.add(new_image)  # Add to session directly
 
             taglist = form.tags.data.split(",")
             for t in taglist:
                 tag = models.Tag.query.filter_by(name=t).first()
                 if tag is None:
-                    new_tag = models.Tag()
-                    new_tag.name = t.strip()
+                    new_tag = models.Tag(name=t.strip())
                     db.session.add(new_tag)
                     db.session.commit()
-                    tag = models.Tag.query.filter_by(name=t).first()
+                    tag = new_tag  # Ensure we're referencing the new tag
                 new_part.tags.append(tag)
 
             new_part.width = form.width.data
@@ -360,13 +378,10 @@ def add_part():
 
             db.session.add(new_part)
             db.session.commit()
-            new_image.part_id = new_part.id
-            db.session.add(new_image)
-            db.session.commit()
+
             return redirect(url_for('part', id=new_part.id))
 
-    return render_template('add_part.html', form=form, title="Add A Part",
-                           form_submitted=form_submitted)
+    return render_template('add_part.html', form=form, title="Add A Part", form_submitted=form_submitted)
 
 
 @app.route("/thumbnail/<int:id>")
@@ -463,17 +478,38 @@ def edit_part(id):
     part = models.Part.query.filter_by(id=id).first_or_404()
     form = Edit(request.form, obj=part)
 
+    # Fetch all brands and types
     brands = models.Brand.query.all()
     form.brand.choices = [(b.id, b.name) for b in brands]
 
     types = models.Type.query.all()
     form.type.choices = [(t.id, t.name) for t in types]
 
+    # Set the current brand and type as the selected options
+    form.brand.data = part.brands[0].id if part.brands else None
+    form.type.data = part.type_id
+
     if form.validate_on_submit():
         form.populate_obj(part)
+
+        # Handle image uploads
+        if form.images.data:
+            for file in form.images.data:
+                if file:
+                    filename = secure_filename(file.filename)
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))  # Save the file to your desired folder
+
+                    # Create a new Image instance and associate it with the part
+                    new_image = models.Image(name=filename, part=part)
+                    db.session.add(new_image)
+
         db.session.commit()
         return redirect(url_for('part', id=id))
-    return render_template('edit.html', **locals())
+
+    return render_template('edit.html', form=form, part=part)
+
+
+
 
 
 @login_manager.user_loader

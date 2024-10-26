@@ -34,15 +34,15 @@
   </p>
 
 
-  <p>Type: {{ form.type }} 
+  <p>Type: {{ form.type }}
     {% if form_submitted and form.type.errors %}
       <div class="error">{{ form.type.errors[0] }}</div>
     {% endif %}
   </p>
   
-  <p>Image: {{ form.image }} 
-    {% if form_submitted and form.image.errors %}
-      <div class="error">{{ form.image.errors[0] }}</div>
+  <p>Image: {{ form.images(size=20, multiple=True) }}
+    {% if form_submitted and form.images.errors %}
+      <div class="error">{{ form.images.errors[0] }}</div>
     {% endif %}
   </p>
   
