@@ -489,6 +489,9 @@ def edit_part(id):
     form.brand.data = part.brands[0].id if part.brands else None
     form.type.data = part.type_id
 
+    # Set tags as a comma-separated string
+    form.tags.data = ', '.join(tag.name for tag in part.tags) if part.tags else ''
+
     if form.validate_on_submit():
         form.populate_obj(part)
 
