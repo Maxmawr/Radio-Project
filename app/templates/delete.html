@@ -1,0 +1,7 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Are you sure you want to delete {{part.name}}?</h2>
+<form action="/delete_confirm/{{part.id}}" method="post">
+    <button type="submit">Confirm</button>
+</form>
+{% endblock %}

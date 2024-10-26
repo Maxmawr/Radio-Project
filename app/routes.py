@@ -443,6 +443,20 @@ def register():
     return render_template("sign_up.html")
 
 
+@app.route("/delete/<int:id>", methods=['GET', 'POST'])
+def delete(id):
+    part = models.Part.query.filter_by(id=id).first_or_404()
+    return render_template("delete.html", part=part)
+
+
+@app.route("/delete_confirm/<int:id>", methods=['GET', 'POST'])
+def delete_confirm(id):
+    part = models.Part.query.filter_by(id=id).first_or_404()
+    db.session.delete(part)
+    db.session.commit()
+    print("deleted", part)
+    return redirect(url_for("all_parts"))
+
 @login_manager.user_loader
 def loader_user(user_id):
     return models.Users.query.get(user_id)
