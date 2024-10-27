@@ -15,7 +15,7 @@
     {% endif %}
   </p>
   
-  <p>Tags: {{ form.tags }} 
+  <p>Tags: {{ form.tags(placeholder="Tags are a comma-seperated list. Eg: Round, Green, Kilo Cycles") }} 
     {% if form_submitted and form.tags.errors %}
       <div class="error">{{ form.tags.errors[0] }}</div>
     {% endif %}
@@ -40,11 +40,11 @@
     {% endif %}
   </p>
   
-  <!-- <p>Image: {{ form.images(size=20, multiple=True) }}
+  <p>Update Image: {{ form.images(size=20, multiple=True) }}
     {% if form_submitted and form.images.errors %}
       <div class="error">{{ form.images.errors[0] }}</div>
     {% endif %}
-  </p> -->
+  </p>
   
   <input type="submit" value="Submit">
 </form>

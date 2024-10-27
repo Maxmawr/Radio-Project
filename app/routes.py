@@ -116,51 +116,51 @@ def generate_random_image(image_path):
     img.save(image_path)
 
 
-@app.route('/add_test_data')
-@login_required
-def add_test_data(num_records=1000):
-    with app.app_context():
-        brands = Brand.query.all()
-        types = Type.query.all()
+# @app.route('/add_test_data')
+# @login_required
+# def add_test_data(num_records=1000):
+#     with app.app_context():
+#         brands = Brand.query.all()
+#         types = Type.query.all()
 
-        for _ in range(num_records):
-            new_part = Part()
-            new_part.name = fake.catch_phrase()
-            new_part.width = random.randint(1, 100)
+#         for _ in range(num_records):
+#             new_part = Part()
+#             new_part.name = fake.catch_phrase()
+#             new_part.width = random.randint(1, 100)
 
-            selected_brand = random.choice(brands)
-            new_part.brands.append(selected_brand)
+#             selected_brand = random.choice(brands)
+#             new_part.brands.append(selected_brand)
 
-            selected_type = random.choice(types)
-            new_part.type_id = selected_type.id
+#             selected_type = random.choice(types)
+#             new_part.type_id = selected_type.id
 
-            tag_names = [fake.word() for _ in range(random.randint(1, 5))]
-            for tag_name in tag_names:
-                tag = Tag.query.filter_by(name=tag_name).first()
-                if tag is None:
-                    new_tag = Tag(name=tag_name)
-                    db.session.add(new_tag)
-                    db.session.commit()
-                    new_part.tags.append(new_tag)
-                else:
-                    if tag not in new_part.tags:
-                        new_part.tags.append(tag)
+#             tag_names = [fake.word() for _ in range(random.randint(1, 5))]
+#             for tag_name in tag_names:
+#                 tag = Tag.query.filter_by(name=tag_name).first()
+#                 if tag is None:
+#                     new_tag = Tag(name=tag_name)
+#                     db.session.add(new_tag)
+#                     db.session.commit()
+#                     new_part.tags.append(new_tag)
+#                 else:
+#                     if tag not in new_part.tags:
+#                         new_part.tags.append(tag)
 
-            dummy_image_name = f"{fake.uuid4()}.jpg"
-            image_path = os.path.join(UPLOAD_FOLDER, dummy_image_name)
+#             dummy_image_name = f"{fake.uuid4()}.jpg"
+#             image_path = os.path.join(UPLOAD_FOLDER, dummy_image_name)
 
-            generate_random_image(image_path)
+#             generate_random_image(image_path)
 
-            new_image = Image(name=dummy_image_name)
-            new_image.part_id = new_part.id
+#             new_image = Image(name=dummy_image_name)
+#             new_image.part_id = new_part.id
 
-            db.session.add(new_part)
-            db.session.commit()
-            new_image.part_id = new_part.id
-            db.session.add(new_image)
-            db.session.commit()
+#             db.session.add(new_part)
+#             db.session.commit()
+#             new_image.part_id = new_part.id
+#             db.session.add(new_image)
+#             db.session.commit()
 
-        return f"{num_records} records added to the database."
+#         return f"{num_records} records added to the database."
 
 
 # Route for brands page
@@ -473,47 +473,71 @@ def delete_confirm(id):
     return redirect(url_for("all_parts"))
 
 
-# @app.route('/edit/<int:id>', methods=['GET', 'POST'])
-# def edit_part(id):
-#     part = models.Part.query.filter_by(id=id).first_or_404()
-#     form = Edit(request.form, obj=part)
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-#     # Fetch all brands and types
-#     brands = models.Brand.query.all()
-#     form.brand.choices = [(b.id, b.name) for b in brands]
 
-#     types = models.Type.query.all()
-#     form.type.choices = [(t.id, t.name) for t in types]
+@app.route('/edit/<int:id>', methods=['GET', 'POST'])
+def edit_part(id):
+    part = models.Part.query.filter_by(id=id).first_or_404()
+    form = Edit(request.form, obj=part)
 
-#     # Set the current brand and type as the selected options
-#     form.brand.data = part.brands[0].id if part.brands else None
-#     form.type.data = part.type_id
+    brands = models.Brand.query.all()
+    form.brand.choices = [(b.id, b.name) for b in brands]
 
-#     # Set tags as a comma-separated string
-#     form.tags.data = ', '.join(tag.name for tag in part.tags) if part.tags else ''
+    types = models.Type.query.all()
+    form.type.choices = [(t.id, t.name) for t in types]
 
-#     if form.validate_on_submit():
-#         # Populate the part object excluding tags
-#         form.populate_obj(part)  # This populates all fields except for tags
+    # Set the current brand and type as the selected options
 
-#         # Process tags input separately
-#         if form.tags.data:
-#             tags_list = [tag.strip() for tag in form.tags.data.split(',')]
-#             part.tags = []  # Clear existing tags
 
-#             for tag_name in tags_list:
-#                 # Check if the tag already exists
-#                 tag = models.Tag.query.filter_by(name=tag_name).first()
-#                 if tag:
-#                     part.tags.append(tag)  # Add existing tag
-#                 else:
-#                     new_tag = models.Tag(name=tag_name)  # Create a new tag
-#                     part.tags.append(new_tag)  # Add new tag
+    if form.validate_on_submit():
+        part.name = form.name.data
+        selected_brand_id = form.brand.data
+        brand = models.Brand.query.filter_by(id=selected_brand_id).first()
+        part.brands = []
+        part.brands.append(brand)  # Will need to tweak this when implimenting adding multiple brands
+        part.type_id = form.type.data
+        part.height = form.height.data
+        part.width = form.width.data
 
-#         db.session.commit()  # Commit all changes to the database
-#         return redirect(url_for('part', id=id))
+        if form.tags.data:
+            # Extract tags from string field to list
+            taglist = [tag.strip() for tag in form.tags.data.split(",")]
+            part.tags = []
+            for t in taglist:
+                tag = models.Tag.query.filter_by(name=t).first()
+                if tag is None:
+                    new_tag = models.Tag(name=t.strip())
+                    db.session.add(new_tag)
+                    db.session.commit()
+                    tag = new_tag
+                part.tags.append(tag)
 
-#     return render_template('edit.html', form=form, part=part)
+            if 'images' in request.files:
+                image_files = request.files.getlist('images')  # Get all uploaded files
+                if any(image_file and image_file.filename for image_file in image_files):
+                    part.images = []
+                    for image_file in image_files:
+                        if image_file and image_file.filename != '':
+                            filename = secure_filename(image_file.filename)
+                            image_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+                            # Create a new Image instance
+                            new_image = models.Image(name=filename, part=part)  # Link the image to the part
+                            db.session.add(new_image)  # Add to session directly
+
+        db.session.commit()
+        return redirect(url_for('part', id=id))
+    else:
+        # Set tags as a comma-separated string
+        # Flatten existing tags into string field
+        form.tags.data = ', '.join(tag.name for tag in part.tags) if part.tags else ''
+
+        form.brand.data = part.brands[0].id if part.brands else None
+        form.type.data = part.type_id
+
+    return render_template('edit.html', form=form, part=part)
 
 
 @login_manager.user_loader

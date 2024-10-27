@@ -15,7 +15,7 @@
     {% endif %}
   </p>
   
-  <p>Tags: {{ form.tags }} 
+  <p>Tags: {{ form.tags(placeholder="Tags are a comma-seperated list. Eg: Round, Green, Kilo Cycles") }} 
     {% if form_submitted and form.tags.errors %}
       <div class="error">{{ form.tags.errors[0] }}</div>
     {% endif %}
