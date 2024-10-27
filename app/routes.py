@@ -233,7 +233,7 @@ def search():
     brand_choices = [(0, 'None')] + [(b.id, b.name) for b in brands]
     form.partbrand.choices = brand_choices
 
-    type_choices = [(0, 'None')] + [(t.id, t.name) for t in types]
+    type_choices = [(0, 'Any')] + [(t.id, t.name) for t in types]
     form.type.choices = type_choices
 
     brand = request.args.get('brand', type=int)
