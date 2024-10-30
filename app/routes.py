@@ -488,10 +488,10 @@ def edit_part(id):
     types = models.Type.query.all()
     form.type.choices = [(t.id, t.name) for t in types]
 
-    # Set the current brand and type as the selected options
-
+    form_submitted = False
 
     if form.validate_on_submit():
+        form_submitted = True
         part.name = form.name.data
         selected_brand_id = form.brand.data
         brand = models.Brand.query.filter_by(id=selected_brand_id).first()
@@ -533,11 +533,10 @@ def edit_part(id):
         # Set tags as a comma-separated string
         # Flatten existing tags into string field
         form.tags.data = ', '.join(tag.name for tag in part.tags) if part.tags else ''
-
         form.brand.data = part.brands[0].id if part.brands else None
         form.type.data = part.type_id
 
-    return render_template('edit.html', form=form, part=part)
+    return render_template('edit.html', form=form, part=part, form_submitted=form_submitted)
 
 
 @login_manager.user_loader
