@@ -300,6 +300,10 @@ def search():
 
             results = query.all()
 
+            # Returns nothing on purpose if results is every part in the database - for when all fields are left blank
+            if results == models.Part.query.all():
+                results = []
+
     elif brand is not None:
         form.partbrand.data = brand
         results = models.Part.query.filter(
@@ -308,6 +312,8 @@ def search():
     elif tag is not None:
         form.tag.data = tag
         results = models.Part.query.filter(models.Part.tags.any(id=tag)).all()
+
+
 
     return render_template("search.html", form=form, results=results,
                            form_submitted=form_submitted)

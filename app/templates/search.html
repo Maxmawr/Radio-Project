@@ -79,7 +79,9 @@
       {% endfor %}
       </tr>
     </tbody>
-  </table>
+  </table>  
+{% elif results == [] and form_submitted %}
+  <h3>No Results Found</h3>
 {% endif %}
 
 {% endblock %}
