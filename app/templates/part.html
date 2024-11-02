@@ -16,6 +16,8 @@
 
   {{part.tags | join(", ")}}<br>
 
+{% if current_user.is_authenticated %}
   <a href = "/edit/{{part.id}}">Edit</a><br>
   <a href = "/delete/{{part.id}}">Delete</a>
+{% endif %}
 {% endblock %}

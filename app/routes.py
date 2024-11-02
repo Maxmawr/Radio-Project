@@ -219,7 +219,6 @@ def all_parts():
 def search():
     """This route allows the user to search by filling out a selection
     of entries on the form.
-    As of now, they can search by name, size, and brand.
     Any of the fields can be left blank, and they are not
     considered by the search."""
     form = Search()
